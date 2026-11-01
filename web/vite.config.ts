@@ -1,9 +1,23 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 
+// `emptyOutDir` wipes dist/ on every build; the Go toolchain needs the
+// directory to exist for `//go:embed all:dist`, so keep a tracked placeholder.
+function keepGitkeep(): Plugin {
+  return {
+    name: 'keep-gitkeep',
+    closeBundle() {
+      const dir = fileURLToPath(new URL('./dist', import.meta.url));
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(`${dir}/.gitkeep`, '');
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), keepGitkeep()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -42,6 +42,7 @@ func Validate(fsys fs.FS) error {
 		return fmt.Errorf("SKILL.md missing: %w", err)
 	}
 	text := string(raw)
+	text = strings.ReplaceAll(text, "\r\n", "\n") // tolerate CRLF checkouts
 	if !strings.HasPrefix(text, "---\n") {
 		return errors.New("SKILL.md must start with YAML frontmatter")
 	}

@@ -67,6 +67,8 @@ func TestMarkdownGolden(t *testing.T) {
 		if err != nil {
 			t.Fatalf("missing golden file (run with -update): %v", err)
 		}
+		// Golden files may be checked out with CRLF line endings on Windows.
+		want = []byte(strings.ReplaceAll(string(want), "\r\n", "\n"))
 		if string(want) != got {
 			line := firstDiffLine(string(want), got)
 			t.Fatalf("%s report differs from golden at line %d; run `go test ./internal/report -update` after reviewing", lang, line)

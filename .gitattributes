@@ -1,0 +1,9 @@
+# Normalise line endings so golden files, SKILL.md and scripts behave the same on every OS.
+* text=auto eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.png binary
+*.gz binary
+*.woff binary
+*.woff2 binary
+*.zip binary
