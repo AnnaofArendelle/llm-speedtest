@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -26,9 +27,11 @@ func TestValidateInstallExport(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(got, "scripts", "install.sh")); err != nil {
 		t.Fatal(err)
 	}
-	st, _ := os.Stat(filepath.Join(got, "scripts", "install.sh"))
-	if st.Mode()&0o111 == 0 {
-		t.Fatal("scripts must be executable")
+	if runtime.GOOS != "windows" { // NTFS has no executable bit
+		st, _ := os.Stat(filepath.Join(got, "scripts", "install.sh"))
+		if st.Mode()&0o111 == 0 {
+			t.Fatal("scripts must be executable")
+		}
 	}
 	if _, err := Install(dir, false); err == nil {
 		t.Fatal("second install without --force must fail")
