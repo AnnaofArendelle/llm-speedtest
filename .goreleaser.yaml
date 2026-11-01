@@ -1,0 +1,95 @@
+# GoReleaser v2 configuration — https://goreleaser.com
+version: 2
+
+project_name: llm-speedtest
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: llm-speedtest
+    main: ./cmd/llm-speedtest
+    binary: llm-speedtest
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X {{ .ModulePath }}/internal/version.Version={{ .Version }}
+      - -X {{ .ModulePath }}/internal/version.Commit={{ .ShortCommit }}
+      - -X {{ .ModulePath }}/internal/version.Date={{ .Date }}
+    mod_timestamp: '{{ .CommitTimestamp }}'
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - README.zh-CN.md
+      - CHANGELOG.md
+      - docs/*.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+snapshot:
+  version_template: '{{ incpatch .Version }}-next'
+
+changelog:
+  use: git
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))?!?:.+$'
+      order: 0
+    - title: Fixes
+      regexp: '^.*?fix(\(.+\))?!?:.+$'
+      order: 1
+    - title: Performance
+      regexp: '^.*?perf(\(.+\))?!?:.+$'
+      order: 2
+    - title: Other
+      order: 999
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore'
+      - '^ci:'
+      - '^build\(deps\)'
+
+release:
+  github:
+    owner: AnnaofArendelle
+    name: llm-speedtest
+  draft: false
+  prerelease: auto
+  mode: replace
+  extra_files:
+    - glob: build/llm-speedtest-skill.zip
+  header: |
+    ## llm-speedtest {{ .Tag }}
+
+    Availability · latency · load · capability · quality benchmarks for any OpenAI-compatible `/v1` endpoint,
+    with an interactive dashboard, Markdown/JSON/CSV export and an installable AI skill + MCP server.
+
+    **Install**
+
+    ```sh
+    curl -fsSL https://raw.githubusercontent.com/AnnaofArendelle/llm-speedtest/main/scripts/install.sh | sh
+    # or
+    docker run --rm -p 8787:8787 -v llm-speedtest:/data ghcr.io/annaofarendelle/llm-speedtest:{{ .Version }}
+    ```
+  footer: |
+    `llm-speedtest-skill.zip` is the Agent Skills package (also available via `llm-speedtest skill install`).
+    Checksums are in `checksums.txt`.

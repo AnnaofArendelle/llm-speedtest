@@ -1,0 +1,74 @@
+:root {
+  --lst-surface: #fbfcfe;
+  --lst-surface-low: #f3f5f9;
+  --lst-surface-high: #e9edf3;
+  --lst-on-surface: #1a1c1e;
+  --lst-on-variant: #45474a;
+  --lst-primary: #2563eb;
+  --lst-secondary: #6366f1;
+  --lst-tier-a: #16a34a;
+  --lst-tier-b: #d97706;
+  --lst-tier-c: #ea580c;
+  --lst-fail: #9f1239;
+  --lst-radius: 20px;
+}
+:root[data-theme='dark'] {
+  --lst-surface: #0b0f19;
+  --lst-surface-low: #121826;
+  --lst-surface-high: #1a2234;
+  --lst-on-surface: #e3e6ec;
+  --lst-on-variant: #9aa3b2;
+  --lst-primary: #22d3ee;
+  --lst-secondary: #3b82f6;
+  --lst-tier-a: #4ade80;
+  --lst-tier-b: #fbbf24;
+  --lst-tier-c: #fb923c;
+  --lst-fail: #fb7185;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--lst-surface);
+  color: var(--lst-on-surface);
+}
+body {
+  font-family:
+    'Inter Variable',
+    'Noto Sans SC',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+code,
+.mono {
+  font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+* {
+  scrollbar-width: thin;
+}
+@keyframes lst-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--lst-primary) 60%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.lst-pulse {
+  animation: lst-pulse 1.4s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lst-pulse {
+    animation: none;
+  }
+}
+.MuiDataGrid-root {
+  border-radius: 16px !important;
+}

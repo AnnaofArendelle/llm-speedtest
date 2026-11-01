@@ -1,0 +1,105 @@
+# Default quality spot-check questions. Every question has a deterministic,
+# machine-checkable answer so that a model's output can be scored without a
+# judge model. Types: number | exact | contains | regex. Weight defaults to 1.
+questions:
+  - id: number_words
+    category: reasoning
+    prompt: "Convert the following number written in words into digits and reply with the digits only: four hundred and twenty-three"
+    type: number
+    expect: "423"
+  - id: multiply
+    category: arithmetic
+    prompt: "What is 17 × 23? Reply with the number only."
+    type: number
+    expect: "391"
+  - id: divide_add
+    category: arithmetic
+    prompt: "Compute 1024 / 8 + 3. Reply with the number only."
+    type: number
+    expect: "131"
+  - id: reverse
+    category: string
+    prompt: "Reverse the string benchmark and reply with the reversed string only, in lowercase."
+    type: contains
+    expect: "kramhcneb"
+  - id: count_letter
+    category: string
+    prompt: "How many times does the letter e appear in the word excellence? Reply with the number only."
+    type: number
+    expect: "4"
+  - id: weekday
+    category: reasoning
+    prompt: "If today is Monday, what day of the week will it be 10 days from now? Reply with the day name only."
+    type: contains
+    expect: "thursday"
+  - id: json_extract
+    category: extraction
+    prompt: "Extract the destination city from this sentence and reply with JSON of the form {\"city\": \"...\"} and nothing else: Maria moved from Lisbon to Oslo in 2019."
+    type: regex
+    expect: "\"city\"\\s*:\\s*\"Oslo\""
+  - id: exact_word
+    category: instruction
+    prompt: "Reply with exactly the word APPLE in uppercase and nothing else."
+    type: exact
+    expect: "APPLE"
+  - id: sort_numbers
+    category: reasoning
+    prompt: "Sort these numbers in ascending order and reply with them comma-separated and no spaces: 42,7,19,3"
+    type: regex
+    expect: "3,\\s*7,\\s*19,\\s*42"
+  - id: syllogism
+    category: logic
+    prompt: "All bloops are razzies. All razzies are lazzies. Are all bloops lazzies? Answer yes or no."
+    type: regex
+    expect: "(?i)^\\W*yes"
+  - id: minutes
+    category: arithmetic
+    prompt: "How many minutes are there in 3.5 hours? Reply with the number only."
+    type: number
+    expect: "210"
+  - id: translate
+    category: language
+    prompt: "Translate 谢谢 into English. Reply with one or two words only."
+    type: regex
+    expect: "(?i)thank"
+  - id: word_count
+    category: string
+    prompt: "How many words are in this sentence: The cat sat on the warm mat. Reply with the number only."
+    type: number
+    expect: "7"
+  - id: capital
+    category: knowledge
+    prompt: "What is the capital city of Australia? Reply with the city name only."
+    type: contains
+    expect: "canberra"
+  - id: sequence
+    category: reasoning
+    prompt: "What number comes next in the sequence 2, 4, 8, 16? Reply with the number only."
+    type: number
+    expect: "32"
+  - id: python_len
+    category: code
+    prompt: "In Python, what does len('hello') return? Reply with the number only."
+    type: number
+    expect: "5"
+  - id: anagram
+    category: logic
+    prompt: "Is listen an anagram of silent? Answer yes or no."
+    type: regex
+    expect: "(?i)^\\W*yes"
+  - id: roman
+    category: knowledge
+    prompt: "Write the year 2024 in Roman numerals. Reply with the numeral only."
+    type: contains
+    expect: "MMXXIV"
+  - id: percent
+    category: arithmetic
+    prompt: "What is 15% of 200? Reply with the number only."
+    type: number
+    expect: "30"
+  - id: sum_1_to_10
+    category: arithmetic
+    prompt: "What is the sum of all integers from 1 to 10? Reply with the number only."
+    type: number
+    expect: "55"
+identity_prompt: "Which AI model are you? Reply with your model name only."

@@ -1,0 +1,41 @@
+# llm-speedtest configuration
+endpoint:
+  name: my-gateway
+  base_url: http://localhost:20128/v1
+  api_key: ""            # or set LLM_SPEEDTEST_KEY
+  dialect: ""            # auto-detect; or 9router | oneapi | openrouter | litellm | ollama | vllm | generic
+  headers: {}
+  insecure: false
+  proxy: ""
+suite:
+  profile: standard      # quick | standard | deep
+  scan: true
+  latency: true
+  latency_top: 10
+  capability: true
+  capability_top: 10
+  quality: true
+  quality_top: 10
+  load: false
+  load_model: ""
+  lang: zh
+  filter:
+    exclude_owners: [combo]
+    include_owners: []
+    id_regex: ""
+    exclude_regex: ""
+    limit: 0
+  specs:
+    scan:
+      first: {concurrency: 10, per_provider: 2, timeout: 60s}
+      retry: {concurrency: 6, per_provider: 1, timeout: 90s}
+      final: {concurrency: 4, per_provider: 1, timeout: 90s}
+      resample: 2
+      max_tokens: 1
+      prompt: hi
+      max_cooldown_wait: 120s
+    latency: {samples: 5, warmup: 1, input_tokens: 200, output_tokens: 128, concurrency: 2, per_provider: 1, timeout: 120s}
+    load: {mode: concurrency, levels: [1, 2, 4], duration: 30s, input_tokens: 100, output_tokens: 64, stream: true, slo: {ttft: 1s, tpot: 50ms}}
+    capability: {concurrency: 2, per_provider: 1, timeout: 90s, long_context_tiers: [8000, 32000]}
+    quality: {trials: 3, concurrency: 2, per_provider: 1, timeout: 60s, max_tokens: 64}
+    scoring: {w_stability: 0.4, w_breadth: 0.3, w_speed: 0.3, speed_lo_s: 0.5, speed_hi_s: 30}

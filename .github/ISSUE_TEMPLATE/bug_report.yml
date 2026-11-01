@@ -1,0 +1,28 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `llm-speedtest version`
+    validations:
+      required: true
+  - type: input
+    id: gateway
+    attributes:
+      label: Endpoint / gateway
+      description: Which gateway or provider was tested (9router, one-api, OpenRouter, vLLM, ...)? No keys please.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, expected vs actual behaviour. Attach the exported JSON if it helps.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / errors
+      render: shell

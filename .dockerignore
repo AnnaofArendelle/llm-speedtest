@@ -1,0 +1,15 @@
+.git
+.github
+bin
+dist
+build
+data
+docs/screenshots
+web/node_modules
+web/dist
+web/test-results
+web/playwright-report
+*.db
+*.db-*
+coverage.out
+coverage.html

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="LLM Speedtest — availability, latency, load and capability benchmarks for any OpenAI-compatible API" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>LLM Speedtest</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('llm-speedtest.theme');
+          var mode = stored === 'light' || stored === 'dark' ? stored : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', mode);
+          document.documentElement.style.backgroundColor = mode === 'dark' ? '#0B0F19' : '#FBFCFE';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
