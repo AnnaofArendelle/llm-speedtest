@@ -34,7 +34,11 @@ trap 'rm -rf "$tmp"' EXIT
 echo "downloading $asset ..."
 curl -fsSL "$base/$asset" -o "$tmp/$asset"
 curl -fsSL "$base/checksums.txt" -o "$tmp/checksums.txt"
-(cd "$tmp" && grep " $asset\$" checksums.txt | sha256sum -c - >/dev/null) || { echo "checksum verification failed" >&2; exit 1; }
+if command -v sha256sum >/dev/null 2>&1; then
+  (cd "$tmp" && grep " $asset\$" checksums.txt | sha256sum -c - >/dev/null)
+else # macOS and other BSDs ship shasum instead of sha256sum
+  (cd "$tmp" && grep " $asset\$" checksums.txt | shasum -a 256 -c - >/dev/null)
+fi || { echo "checksum verification failed" >&2; exit 1; }
 tar -xzf "$tmp/$asset" -C "$tmp"
 
 dest="${LLM_SPEEDTEST_INSTALL:-}"
