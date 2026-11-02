@@ -92,7 +92,7 @@ function RailItem({
       >
         <Box
           className="lst-rail-hover"
-          sx={{ position: 'absolute', inset: 0, borderRadius: 999, transition: 'background-color .12s' }}
+          sx={{ position: 'absolute', inset: 0, borderRadius: '999px', transition: 'background-color .12s' }}
         />
         {active && (
           <motion.div
@@ -101,7 +101,7 @@ function RailItem({
             style={{
               position: 'absolute',
               inset: 0,
-              borderRadius: 999,
+              borderRadius: '999px',
               backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.14),
             }}
           />

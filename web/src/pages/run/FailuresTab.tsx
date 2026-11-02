@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useFailures } from '@/api/hooks';
 import type { ModelStat } from '@/api/types';
 import { EmptyState } from '@/components/EmptyState';
@@ -22,6 +23,7 @@ import { ReasonChip } from '@/components/badges';
 import { useTokens } from '@/lib/tokens';
 import { fmtSeconds, truncate } from '@/lib/format';
 import { useReasonLookup } from '@/lib/reasons';
+import { arr, entries } from '@/lib/safe';
 import type { TabProps } from './types';
 
 function ProviderBlock({
@@ -55,7 +57,7 @@ function ProviderBlock({
             m: 0,
             mb: 1,
             p: 1.25,
-            borderRadius: 3,
+            borderRadius: radius.control,
             bgcolor: 'background.default',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
@@ -118,11 +120,7 @@ export default function FailuresTab({ runId, onModel }: TabProps) {
         {t('run.failures.intro')}
       </Typography>
       {groups.map((g) => (
-        <Accordion
-          key={g.reason}
-          disableGutters
-          sx={{ borderRadius: 5, '&:before': { display: 'none' }, overflow: 'hidden' }}
-        >
+        <Accordion key={g.reason} disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreRounded />}>
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ pr: 2 }}>
               <ReasonChip code={g.reason} size="medium" />
@@ -144,10 +142,10 @@ export default function FailuresTab({ runId, onModel }: TabProps) {
                 <b>{t('run.failures.fix')}:</b> {lookup.fix(g.reason)}
               </Typography>
             )}
-            {Object.entries(g.by_provider)
-              .sort((a, b) => b[1].length - a[1].length)
+            {entries(g.by_provider)
+              .sort((a, b) => arr(b[1]).length - arr(a[1]).length)
               .map(([p, models]) => (
-                <ProviderBlock key={p} provider={p} models={models} onModel={onModel} />
+                <ProviderBlock key={p} provider={p} models={arr(models)} onModel={onModel} />
               ))}
           </AccordionDetails>
         </Accordion>

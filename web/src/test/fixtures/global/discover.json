@@ -1,0 +1,76 @@
+{
+  "models": [
+    {
+      "id": "a/fast",
+      "owned_by": "a",
+      "upstream": "fast",
+      "provider_key": "a",
+      "provider_name": "a",
+      "family_key": "fast||",
+      "family_canon": "fast",
+      "family_source": "rule",
+      "raw": {
+        "id": "a/fast",
+        "object": "model",
+        "owned_by": "a"
+      }
+    },
+    {
+      "id": "a/slow",
+      "owned_by": "a",
+      "upstream": "slow",
+      "provider_key": "a",
+      "provider_name": "a",
+      "family_key": "slow||",
+      "family_canon": "slow",
+      "family_source": "rule",
+      "raw": {
+        "id": "a/slow",
+        "object": "model",
+        "owned_by": "a"
+      }
+    },
+    {
+      "id": "b/missing",
+      "owned_by": "b",
+      "upstream": "missing",
+      "provider_key": "b",
+      "provider_name": "b",
+      "family_key": "missing||",
+      "family_canon": "missing",
+      "family_source": "rule",
+      "raw": {
+        "id": "b/missing",
+        "object": "model",
+        "owned_by": "b"
+      }
+    }
+  ],
+  "total": 3,
+  "filtered": 3,
+  "providers": [
+    {
+      "key": "a",
+      "name": "a",
+      "models": 2,
+      "raw_keys": [
+        "a"
+      ]
+    },
+    {
+      "key": "b",
+      "name": "b",
+      "models": 1,
+      "raw_keys": [
+        "b"
+      ]
+    }
+  ],
+  "provider_field": "owned_by",
+  "provider_rationale": "owned_by discriminates between models (2 distinct values)",
+  "families": 3,
+  "dialect": {
+    "name": "generic",
+    "score": 0
+  }
+}

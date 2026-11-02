@@ -1,0 +1,67 @@
+[
+  {
+    "en": "Streaming (SSE)",
+    "id": "streaming",
+    "zh": "流式输出（SSE）"
+  },
+  {
+    "en": "Usage in stream",
+    "id": "usage_in_stream",
+    "zh": "流式响应附带 usage"
+  },
+  {
+    "en": "Tool calling",
+    "id": "tools",
+    "zh": "工具调用（function calling）"
+  },
+  {
+    "en": "JSON mode",
+    "id": "json_mode",
+    "zh": "JSON 模式"
+  },
+  {
+    "en": "Structured output (json_schema)",
+    "id": "json_schema",
+    "zh": "结构化输出（json_schema）"
+  },
+  {
+    "en": "Vision input",
+    "id": "vision",
+    "zh": "视觉输入（图片）"
+  },
+  {
+    "en": "System prompt adherence",
+    "id": "system_prompt",
+    "zh": "系统提示遵循"
+  },
+  {
+    "en": "Honours max_tokens",
+    "id": "max_tokens",
+    "zh": "遵守 max_tokens"
+  },
+  {
+    "en": "Honours stop sequences",
+    "id": "stop",
+    "zh": "遵守 stop 序列"
+  },
+  {
+    "en": "Deterministic at temperature 0",
+    "id": "determinism",
+    "zh": "temperature=0 确定性"
+  },
+  {
+    "en": "Accepts reasoning_effort",
+    "id": "reasoning_param",
+    "zh": "接受推理参数（reasoning_effort）"
+  },
+  {
+    "en": "Long context",
+    "id": "long_context",
+    "zh": "长上下文"
+  },
+  {
+    "en": "Embeddings endpoint",
+    "id": "embeddings",
+    "zh": "嵌入接口（/embeddings）"
+  }
+]

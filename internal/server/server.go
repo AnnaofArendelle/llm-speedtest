@@ -25,6 +25,7 @@ import (
 	"github.com/AnnaofArendelle/llm-speedtest/internal/core"
 	"github.com/AnnaofArendelle/llm-speedtest/internal/dialect"
 	"github.com/AnnaofArendelle/llm-speedtest/internal/latency"
+	"github.com/AnnaofArendelle/llm-speedtest/internal/provider"
 	"github.com/AnnaofArendelle/llm-speedtest/internal/quality"
 	"github.com/AnnaofArendelle/llm-speedtest/internal/store"
 	"github.com/AnnaofArendelle/llm-speedtest/internal/version"
@@ -110,6 +111,7 @@ func (s *Server) routes() {
 	api("GET /api/runs/{id}", s.getRun)
 	api("DELETE /api/runs/{id}", s.deleteRun)
 	api("POST /api/runs/{id}/cancel", s.cancelRun)
+	api("POST /api/runs/{id}/skip", s.skipRun)
 	api("GET /api/runs/{id}/events", s.events)
 	api("GET /api/runs/{id}/summary", s.runSummary)
 	api("GET /api/runs/{id}/families", s.runFamilies)
@@ -118,6 +120,8 @@ func (s *Server) routes() {
 	api("GET /api/runs/{id}/models", s.runModels)
 	api("GET /api/runs/{id}/models/{model...}", s.runModel)
 	api("GET /api/runs/{id}/failures", s.runFailures)
+	api("GET /api/runs/{id}/profile/model/{model...}", s.modelProfile)
+	api("GET /api/runs/{id}/profile/family/{key}", s.familyProfile)
 	api("GET /api/runs/{id}/latency", s.runLatency)
 	api("GET /api/runs/{id}/load", s.runLoad)
 	api("GET /api/runs/{id}/capabilities", s.runCapabilities)
@@ -168,6 +172,18 @@ func (s *Server) auth(h http.HandlerFunc) http.HandlerFunc {
 		}
 		h(w, r)
 	}
+}
+
+// nonNilDiscover guarantees that the collection fields of a discovery result
+// serialise as JSON arrays rather than null.
+func nonNilDiscover(res *app.DiscoverResult) *app.DiscoverResult {
+	if res.Models == nil {
+		res.Models = []core.RunModel{}
+	}
+	if res.Providers == nil {
+		res.Providers = []provider.Provider{}
+	}
+	return res
 }
 
 func notFoundOr(w http.ResponseWriter, err error) {
@@ -317,7 +333,7 @@ func (s *Server) discoverEndpoint(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 502, err)
 		return
 	}
-	writeJSON(w, 200, res)
+	writeJSON(w, 200, nonNilDiscover(res))
 }
 
 func (s *Server) discoverAdhoc(w http.ResponseWriter, r *http.Request) {
@@ -335,7 +351,7 @@ func (s *Server) discoverAdhoc(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 502, err)
 		return
 	}
-	writeJSON(w, 200, res)
+	writeJSON(w, 200, nonNilDiscover(res))
 }
 
 func (s *Server) getOverrides(w http.ResponseWriter, r *http.Request) {
@@ -476,7 +492,7 @@ func (s *Server) getRun(w http.ResponseWriter, r *http.Request) {
 		kids = []*store.Run{}
 	}
 	latest, _ := s.svc.Bus.Latest(run.ID)
-	writeJSON(w, 200, map[string]any{"run": run, "children": kids, "running": s.svc.IsRunning(run.ID), "latest": latest})
+	writeJSON(w, 200, map[string]any{"run": run, "children": kids, "running": s.svc.IsRunning(run.ID), "latest": latest, "inflight": s.svc.Inflight(run.ID)})
 }
 
 func (s *Server) deleteRun(w http.ResponseWriter, r *http.Request) {
@@ -491,6 +507,26 @@ func (s *Server) deleteRun(w http.ResponseWriter, r *http.Request) {
 	}
 	s.cache.Delete(id)
 	writeJSON(w, 200, map[string]any{"ok": true})
+}
+
+// skipRun skips one model (or every in-flight model) of a run in progress.
+func (s *Server) skipRun(w http.ResponseWriter, r *http.Request) {
+	var b struct {
+		Model string `json:"model"`
+		All   bool   `json:"all"`
+	}
+	if r.ContentLength > 0 && !s.decode(w, r, &b) {
+		return
+	}
+	ids, ok := s.svc.Skip(r.PathValue("id"), b.Model, b.All)
+	if !ok {
+		writeErr(w, 409, errors.New("run is not in progress"))
+		return
+	}
+	if ids == nil {
+		ids = []string{}
+	}
+	writeJSON(w, 200, map[string]any{"skipped": ids})
 }
 
 func (s *Server) cancelRun(w http.ResponseWriter, r *http.Request) {
@@ -533,7 +569,7 @@ func (s *Server) events(w http.ResponseWriter, r *http.Request) {
 	ch, unsub := s.svc.Bus.Subscribe(id, 512)
 	defer unsub()
 	latest, _ := s.svc.Bus.Latest(id)
-	snapshot := core.Event{Kind: "snapshot", RunID: id, At: time.Now(), Data: map[string]any{"status": run.Status, "running": s.svc.IsRunning(id), "latest": latest}}
+	snapshot := core.Event{Kind: "snapshot", RunID: id, At: time.Now(), Data: map[string]any{"status": run.Status, "running": s.svc.IsRunning(id), "latest": latest, "inflight": s.svc.Inflight(id)}}
 	if !send(snapshot) {
 		return
 	}
@@ -584,7 +620,11 @@ func (s *Server) scanResult(id string) (*analyze.Result, *store.Run, error) {
 	if err != nil {
 		return nil, run, err
 	}
-	s.cache.Store(id, cachedResult{res: res, run: run, at: time.Now()})
+	// Never cache a result computed while the run was still in progress:
+	// it would be served as the final result for up to 30 s after completion.
+	if !s.svc.IsRunning(id) && !s.svc.IsRunning(run.ID) {
+		s.cache.Store(id, cachedResult{res: res, run: run, at: time.Now()})
+	}
 	return res, run, nil
 }
 
@@ -592,7 +632,7 @@ func (s *Server) runSummary(w http.ResponseWriter, r *http.Request) {
 	res, run, err := s.scanResult(r.PathValue("id"))
 	if err != nil {
 		if run != nil && !errors.Is(err, store.ErrNotFound) {
-			writeJSON(w, 200, map[string]any{"run": run, "summary": json.RawMessage(run.Summary)})
+			writeJSON(w, 200, map[string]any{"run": run, "summary": json.RawMessage(run.Summary), "partial": true, "status": run.Status, "kind": run.Kind})
 			return
 		}
 		notFoundOr(w, err)
@@ -614,8 +654,9 @@ func (s *Server) runSummary(w http.ResponseWriter, r *http.Request) {
 	if providers == nil {
 		providers = []*analyze.ProviderStat{}
 	}
+	partial := run.Status != core.StatusDone || s.svc.IsRunning(run.ID)
 	writeJSON(w, 200, map[string]any{"run": run, "summary": res.Summary, "scoring": res.Scoring, "provider_field": res.ProviderField, "provider_rationale": res.ProviderRationale,
-		"provider_suggestions": res.Suggestions, "top_families": top, "top_models": topModels, "providers": providers})
+		"provider_suggestions": res.Suggestions, "top_families": top, "top_models": topModels, "providers": providers, "partial": partial, "status": run.Status, "kind": run.Kind})
 }
 
 func (s *Server) runFamilies(w http.ResponseWriter, r *http.Request) {
@@ -644,7 +685,11 @@ func (s *Server) runFamily(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 404, errors.New("family not found"))
 		return
 	}
-	writeJSON(w, 200, map[string]any{"family": f, "members": f.Members})
+	members := f.Members
+	if members == nil {
+		members = []*analyze.ModelStat{}
+	}
+	writeJSON(w, 200, map[string]any{"family": f, "members": members})
 }
 
 func (s *Server) runProviders(w http.ResponseWriter, r *http.Request) {
@@ -759,7 +804,11 @@ func (s *Server) runModel(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 404, errors.New("model not found"))
 		return
 	}
-	writeJSON(w, 200, map[string]any{"model": m, "history": m.History})
+	history := m.History
+	if history == nil {
+		history = []core.Attempt{}
+	}
+	writeJSON(w, 200, map[string]any{"model": m, "history": history})
 }
 
 func (s *Server) runFailures(w http.ResponseWriter, r *http.Request) {

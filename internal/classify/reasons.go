@@ -13,12 +13,15 @@ type ReasonInfo struct {
 	Transient     bool   `json:"transient"`
 }
 
+// ReasonSkipped marks attempts cancelled by the user through the skip feature.
+const ReasonSkipped = "skipped"
+
 // Order lists reason codes in presentation order.
 var Order = []string{
 	"no_credentials", "auth", "quota_billing", "quota_exhausted", "plan_restriction", "terms_required", "rate_limit",
 	"model_unavailable", "model_retired", "not_chat_model", "not_chat_model_inferred", "param_incompatible", "no_capacity",
 	"no_channel", "method_not_allowed", "empty_response", "upstream_network", "upstream_5xx", "timeout", "network",
-	"bad_request", "error_in_200", "exception", "unknown", "untested",
+	"bad_request", "error_in_200", "exception", "unknown", "skipped", "untested",
 }
 
 var providerLevel = map[string]bool{
@@ -104,6 +107,10 @@ var reasons = map[string]ReasonInfo{
 		Description:   "上游服务端内部错误或暂时不可用；复测仍失败。",
 		DescriptionEN: "Upstream server error or temporary unavailability; still failing on retry.",
 		Fix:           "稍后重试。", FixEN: "Retry later."},
+	"skipped": {Code: "skipped", Name: "用户跳过", NameEN: "Skipped by user",
+		Description:   "用户在运行过程中跳过了该模型：在途请求被取消，后续轮次与阶段不再测试它。",
+		DescriptionEN: "The user skipped this model while the run was in progress: the in-flight request was cancelled and later rounds and stages leave it out.",
+		Fix:           "重新运行以获得该模型的结果；通常意味着它响应过慢。", FixEN: "Re-run to measure it; usually it means the model was too slow to respond."},
 	"timeout": {Code: "timeout", Name: "超时", NameEN: "Timeout",
 		Description:   "客户端在超时阈值内没有收到完整响应。",
 		DescriptionEN: "No complete response arrived within the client timeout.",

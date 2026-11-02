@@ -1,0 +1,85 @@
+{
+  "id": "a/fast",
+  "kind": "model",
+  "display": "a/fast",
+  "dimensions": [
+    {
+      "key": "stability",
+      "label_zh": "稳定性",
+      "label_en": "Stability",
+      "score": 100,
+      "covered": true,
+      "detail": "1/1"
+    },
+    {
+      "key": "speed",
+      "label_zh": "响应速度",
+      "label_en": "Speed",
+      "score": 100,
+      "covered": true,
+      "detail": "median 0.01s"
+    },
+    {
+      "key": "breadth",
+      "label_zh": "提供商广度",
+      "label_en": "Breadth",
+      "score": 100,
+      "covered": true,
+      "detail": "1 providers"
+    },
+    {
+      "key": "ttft",
+      "label_zh": "首 token",
+      "label_en": "TTFT",
+      "score": 100,
+      "covered": true,
+      "detail": "p50 0.01s"
+    },
+    {
+      "key": "throughput",
+      "label_zh": "解码吞吐",
+      "label_en": "Throughput",
+      "score": 100,
+      "covered": true,
+      "detail": "429.4 tok/s"
+    },
+    {
+      "key": "capability",
+      "label_zh": "能力覆盖",
+      "label_en": "Capabilities",
+      "score": 92.3,
+      "covered": true,
+      "detail": "12/13 probes"
+    },
+    {
+      "key": "quality",
+      "label_zh": "回答质量",
+      "label_en": "Quality",
+      "score": 0,
+      "covered": true,
+      "detail": "0/100, consistency 100%"
+    },
+    {
+      "key": "load",
+      "label_zh": "负载 Goodput",
+      "label_en": "Load",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    }
+  ],
+  "coverage": {
+    "capability": true,
+    "latency": true,
+    "load": false,
+    "quality": true,
+    "scan": true
+  },
+  "measured": {
+    "capability": 1,
+    "latency": 1,
+    "quality": 1,
+    "scan": 1
+  },
+  "members": 1
+}

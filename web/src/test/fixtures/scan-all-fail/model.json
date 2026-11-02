@@ -1,0 +1,39 @@
+{
+  "history": [
+    {
+      "model_id": "x/locked",
+      "round": 1,
+      "at": "2026-11-02T21:32:27.042+08:00",
+      "http": 401,
+      "inner": 0,
+      "latency": 1128366,
+      "ok": false,
+      "class": "auth",
+      "reason": "auth",
+      "message": "Invalid API key"
+    }
+  ],
+  "model": {
+    "id": "x/locked",
+    "owned_by": "x",
+    "upstream": "locked",
+    "provider_key": "dead",
+    "provider_name": "dead",
+    "family_key": "locked||",
+    "family_canon": "locked",
+    "family_source": "rule",
+    "status": "fail",
+    "attempts": 1,
+    "ok": 0,
+    "rate": 0,
+    "min_s": 0,
+    "median_s": 0,
+    "max_s": 0,
+    "jitter": 0,
+    "reason": "auth",
+    "first_reason": "auth",
+    "http": 401,
+    "message": "Invalid API key",
+    "fail_latency_s": 0.001128366
+  }
+}

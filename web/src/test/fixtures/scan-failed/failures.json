@@ -1,0 +1,124 @@
+{
+  "groups": [
+    {
+      "reason": "model_unavailable",
+      "info": {
+        "code": "model_unavailable",
+        "name": "模型不存在/不可用 (404/400)",
+        "name_en": "Model not found / unavailable (404/400)",
+        "description": "上游不认识该模型名、账号无权访问、模型已停用或暂时禁用；也包含网关本地直接判定“不支持”的模型。属于模型级问题。",
+        "description_en": "The upstream does not know the model, the account cannot access it, or it is disabled; includes models the gateway rejects locally. Model-level.",
+        "fix": "从列表移除，或改用上游当前有效的模型名。",
+        "fix_en": "Remove it from the list or switch to a currently valid model name.",
+        "provider_level": false,
+        "transient": false
+      },
+      "count": 1,
+      "by_provider": {
+        "b": [
+          {
+            "id": "b/missing",
+            "owned_by": "b",
+            "upstream": "missing",
+            "provider_key": "b",
+            "provider_name": "b",
+            "family_key": "missing||",
+            "family_canon": "missing",
+            "family_source": "rule",
+            "status": "fail",
+            "attempts": 1,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "model_unavailable",
+            "first_reason": "model_unavailable",
+            "http": 404,
+            "message": "The model 'missing' does not exist",
+            "fail_latency_s": 0.03
+          }
+        ]
+      }
+    },
+    {
+      "reason": "skipped",
+      "info": {
+        "code": "skipped",
+        "name": "用户跳过",
+        "name_en": "Skipped by user",
+        "description": "用户在运行过程中跳过了该模型：在途请求被取消，后续轮次与阶段不再测试它。",
+        "description_en": "The user skipped this model while the run was in progress: the in-flight request was cancelled and later rounds and stages leave it out.",
+        "fix": "重新运行以获得该模型的结果；通常意味着它响应过慢。",
+        "fix_en": "Re-run to measure it; usually it means the model was too slow to respond.",
+        "provider_level": false,
+        "transient": false
+      },
+      "count": 1,
+      "by_provider": {
+        "a": [
+          {
+            "id": "a/slow",
+            "owned_by": "a",
+            "upstream": "slow",
+            "provider_key": "a",
+            "provider_name": "a",
+            "family_key": "slow||",
+            "family_canon": "slow",
+            "family_source": "rule",
+            "status": "fail",
+            "attempts": 0,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "skipped",
+            "message": "skipped by user",
+            "skipped": 1
+          }
+        ]
+      }
+    },
+    {
+      "reason": "untested",
+      "info": {
+        "code": "untested",
+        "name": "未测试",
+        "name_en": "Not tested",
+        "description": "没有任何测试记录。",
+        "description_en": "No attempts recorded.",
+        "fix": "",
+        "fix_en": "",
+        "provider_level": false,
+        "transient": false
+      },
+      "count": 1,
+      "by_provider": {
+        "a": [
+          {
+            "id": "a/fast",
+            "owned_by": "a",
+            "upstream": "fast",
+            "provider_key": "a",
+            "provider_name": "a",
+            "family_key": "fast||",
+            "family_canon": "fast",
+            "family_source": "rule",
+            "status": "untested",
+            "attempts": 0,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "untested"
+          }
+        ]
+      }
+    }
+  ]
+}

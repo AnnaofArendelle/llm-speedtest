@@ -196,6 +196,7 @@ export const zh = {
     preview: '预览模型',
     previewResult: '共 {{total}} 个模型，过滤后 {{filtered}} 个 · {{providers}} 个提供商 · {{families}} 个系列',
     note: '备注',
+    started: '测速已开始',
   },
   runs: {
     title: '运行记录',
@@ -265,6 +266,7 @@ export const zh = {
       context: '上下文',
       flaky: '曾失败 {{list}}，复测成功',
       familySource: '归并依据',
+      skipped: '用户跳过 ×{{n}}',
     },
     providers: {
       rationale: '识别依据',
@@ -344,8 +346,23 @@ export const zh = {
       lang: '报告语言',
       preview: '预览',
     },
+    live: {
+      inflight: '进行中的请求',
+      none: '暂无在途请求',
+      skip: '跳过',
+      skipAll: '跳过全部进行中',
+      skipAllConfirm: '取消当前 {{n}} 个在途请求，并在本次运行的后续轮次与阶段中不再测试这些模型？',
+      skipped: '已跳过 {{model}}',
+      skippedAll: '已跳过 {{n}} 个模型',
+      skipFailed: '跳过失败：{{error}}',
+      etaPending: '预计剩余时间计算中…',
+    },
     cancelConfirm: '取消正在进行的运行？',
     notScan: '该运行不包含可用性扫描。',
+    partial: {
+      title: '扫描进行中，尚无可汇总的数据',
+      description: '模型发现与第一轮探测完成后，这里会显示 KPI、分布与排名；进度与实时结果见上方进度卡。',
+    },
   },
   compare: {
     title: '对比两次运行',
@@ -398,5 +415,25 @@ export const zh = {
       '运行 `llm-speedtest skill install --target claude` 可把本工具作为技能安装到 AI 助手；或用 `llm-speedtest mcp` 作为 MCP 服务器。',
   },
   reasons: { legend: '错误类别说明' },
+  profile: {
+    title: '能力矩阵',
+    subtitle: '各维度 0–100 分；灰色轴表示本次运行没有覆盖该维度',
+    coverage: '覆盖面',
+    notCovered: '未覆盖',
+    covered: '已覆盖',
+    measured: '{{n}}/{{total}} 个成员被测量',
+    dimension: '维度',
+    detail: '说明',
+  },
+  errors: {
+    title: '页面出错了',
+    titleIn: '「{{label}}」区域出错了',
+    description:
+      '渲染时发生了未预期的错误。你可以重试、刷新页面或返回运行列表；如果持续出现，请附带下方详情提交 issue。',
+    retry: '重试',
+    reload: '刷新页面',
+    home: '返回运行列表',
+    details: '错误详情',
+  },
 };
 export type Dict = typeof zh;

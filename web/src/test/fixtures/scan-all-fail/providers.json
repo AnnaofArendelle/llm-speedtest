@@ -1,0 +1,29 @@
+{
+  "field": "endpoint",
+  "providers": [
+    {
+      "key": "dead",
+      "name": "dead",
+      "models": 2,
+      "families": 2,
+      "ok": 0,
+      "rate": 0,
+      "median_s": 0,
+      "top_reason": "auth",
+      "top_reason_count": 1,
+      "reasons": {
+        "auth": 1,
+        "model_unavailable": 1
+      },
+      "account_level_all": false,
+      "evidence": [
+        {
+          "field": "endpoint",
+          "value": "dead"
+        }
+      ]
+    }
+  ],
+  "rationale": "no field discriminates between models; treating the endpoint as a single provider",
+  "suggestions": null
+}

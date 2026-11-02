@@ -228,6 +228,18 @@ func NewServer(svc *app.Service) *mcp.Server {
 		Kind  string `json:"kind,omitempty"`
 		Limit int    `json:"limit,omitempty"`
 	}
+	type skipArgs struct {
+		RunID string `json:"run_id" jsonschema:"run id"`
+		Model string `json:"model,omitempty" jsonschema:"model id to skip (omit with all=true)"`
+		All   bool   `json:"all,omitempty" jsonschema:"skip every model currently in flight"`
+	}
+	mcp.AddTool(s, &mcp.Tool{Name: "skip_model", Description: "Skip a model while a run is in progress: cancels its in-flight request and leaves it out of later rounds and stages. Use all=true to skip everything currently in flight."}, func(ctx context.Context, _ *mcp.CallToolRequest, in skipArgs) (*mcp.CallToolResult, any, error) {
+		ids, ok := svc.Skip(in.RunID, in.Model, in.All)
+		if !ok {
+			return fail(fmt.Errorf("run %s is not in progress", in.RunID))
+		}
+		return text(map[string]any{"skipped": ids, "inflight": svc.Inflight(in.RunID)}), nil, nil
+	})
 	mcp.AddTool(s, &mcp.Tool{Name: "list_runs", Description: "List stored runs, newest first."}, func(ctx context.Context, _ *mcp.CallToolRequest, in listArgs) (*mcp.CallToolResult, any, error) {
 		runs, total, err := svc.Store.ListRuns(in.Kind, "", in.Limit, 0)
 		if err != nil {

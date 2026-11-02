@@ -1,0 +1,150 @@
+{
+  "kind": "scan",
+  "partial": true,
+  "provider_field": "owned_by",
+  "provider_rationale": "owned_by discriminates between models (2 distinct values)",
+  "provider_suggestions": null,
+  "providers": [
+    {
+      "key": "a",
+      "name": "a",
+      "models": 2,
+      "families": 2,
+      "ok": 0,
+      "rate": 0,
+      "median_s": 0,
+      "top_reason": "skipped",
+      "top_reason_count": 1,
+      "reasons": {
+        "skipped": 1,
+        "untested": 1
+      },
+      "account_level_all": false,
+      "evidence": [
+        {
+          "field": "owned_by",
+          "value": "a"
+        }
+      ]
+    },
+    {
+      "key": "b",
+      "name": "b",
+      "models": 1,
+      "families": 1,
+      "ok": 0,
+      "rate": 0,
+      "median_s": 0,
+      "top_reason": "model_unavailable",
+      "top_reason_count": 1,
+      "reasons": {
+        "model_unavailable": 1
+      },
+      "account_level_all": false,
+      "evidence": [
+        {
+          "field": "owned_by",
+          "value": "b"
+        }
+      ]
+    }
+  ],
+  "run": {
+    "id": "20261102-133227-9f54bfe65867",
+    "kind": "scan",
+    "endpoint_id": "20261102-133227-3bd17d9ca37f",
+    "endpoint_name": "mock",
+    "base_url": "http://127.0.0.1:46183/v1",
+    "dialect": "generic",
+    "status": "failed",
+    "preset": "quick",
+    "spec": {
+      "kind": "scan",
+      "suite": {
+        "profile": "quick"
+      }
+    },
+    "note": "",
+    "created_at": "2026-11-02T21:32:27.037535798+08:00",
+    "started_at": "0001-01-01T00:00:00Z",
+    "finished_at": "2026-11-02T13:32:27.03787685Z",
+    "summary": {},
+    "progress": {},
+    "error": "list models: connection refused"
+  },
+  "scoring": {
+    "w_stability": 0.4,
+    "w_breadth": 0.3,
+    "w_speed": 0.3,
+    "speed_lo_s": 0.5,
+    "speed_hi_s": 30,
+    "model_tier_a": 0.999,
+    "model_tier_b": 0.66,
+    "family_tier_a": 0.95,
+    "family_tier_b": 0.66
+  },
+  "status": "failed",
+  "summary": {
+    "models": 3,
+    "ok": 0,
+    "fail": 3,
+    "provider_level_fail": 0,
+    "families": 3,
+    "families_ok": 0,
+    "families_unavailable": 3,
+    "providers": 2,
+    "tier_counts": {},
+    "family_tier_counts": {},
+    "latency_median_s": 0,
+    "latency_p90_s": 0,
+    "latency_min_s": 0,
+    "latency_max_s": 0,
+    "buckets": [
+      {
+        "label": "\u003c 1 s",
+        "lo": 0,
+        "hi": 1,
+        "count": 0
+      },
+      {
+        "label": "1 – 2 s",
+        "lo": 1,
+        "hi": 2,
+        "count": 0
+      },
+      {
+        "label": "2 – 5 s",
+        "lo": 2,
+        "hi": 5,
+        "count": 0
+      },
+      {
+        "label": "5 – 10 s",
+        "lo": 5,
+        "hi": 10,
+        "count": 0
+      },
+      {
+        "label": "10 – 30 s",
+        "lo": 10,
+        "hi": 30,
+        "count": 0
+      },
+      {
+        "label": "≥ 30 s",
+        "lo": 30,
+        "hi": 1000000000,
+        "count": 0
+      }
+    ],
+    "reasons": {
+      "model_unavailable": 1,
+      "skipped": 1,
+      "untested": 1
+    },
+    "attempts": 2,
+    "rounds": 1
+  },
+  "top_families": [],
+  "top_models": []
+}

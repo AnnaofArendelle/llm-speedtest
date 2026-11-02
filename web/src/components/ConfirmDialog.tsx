@@ -23,7 +23,7 @@ export function ConfirmDialog({
 }) {
   const { t } = useTranslation();
   return (
-    <Dialog open={open} onClose={onClose} slotProps={{ paper: { sx: { borderRadius: 5, minWidth: 320 } } }}>
+    <Dialog open={open} onClose={onClose} slotProps={{ paper: { sx: { minWidth: 320 } } }}>
       <DialogTitle>{title}</DialogTitle>
       {text && (
         <DialogContent>

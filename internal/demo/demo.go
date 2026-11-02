@@ -243,6 +243,9 @@ func Seed(st *store.Store) (string, error) {
 
 	_ = st.SetRunSummary(parent.ID, map[string]any{"summary": res.Summary, "children": map[string]string{"scan": scanRun.ID, "latency": latRun.ID, "capability": capRun.ID, "quality": qRun.ID}})
 	_ = st.SetRunStatus(parent.ID, core.StatusDone, "")
+	if err := seedBroken(st, ep, spec, models, attempts); err != nil {
+		return "", err
+	}
 	_ = st.SetRunTimes(parent.ID, started, finished.Add(25*time.Minute))
 	_ = st.SetRunTimes(scanRun.ID, started, finished)
 	kids, _ := st.ChildRuns(parent.ID)
@@ -252,4 +255,50 @@ func Seed(st *store.Store) (string, error) {
 		}
 	}
 	return parent.ID, nil
+}
+
+// seedBroken adds a failed run (endpoint unreachable) and a cancelled run
+// (interrupted after part of the first round) so that the UI's error and
+// partial states can be explored and tested.
+func seedBroken(st *store.Store, ep *store.Endpoint, spec json.RawMessage, models []core.RunModel, attempts []core.Attempt) error {
+	base := attempts[len(attempts)-1].At.Add(time.Hour)
+	failed := &store.Run{Kind: core.KindScan, EndpointID: ep.ID, EndpointName: ep.Name, BaseURL: ep.BaseURL, Dialect: "9router", Status: core.StatusPending, Preset: "quick", Spec: spec, Note: Note, CreatedAt: base}
+	if err := st.CreateRun(failed); err != nil {
+		return err
+	}
+	_ = st.SetRunTimes(failed.ID, base, base.Add(3*time.Second))
+	if err := st.SetRunStatus(failed.ID, core.StatusFailed, "list models: Get \"http://localhost:20128/v1/models\": dial tcp 127.0.0.1:20128: connect: connection refused"); err != nil {
+		return err
+	}
+
+	cancelled := &store.Run{Kind: core.KindScan, EndpointID: ep.ID, EndpointName: ep.Name, BaseURL: ep.BaseURL, Dialect: "9router", Status: core.StatusPending, Preset: "standard", Spec: spec, Note: Note, CreatedAt: base.Add(10 * time.Minute)}
+	if err := st.CreateRun(cancelled); err != nil {
+		return err
+	}
+	subset := models
+	if len(subset) > 80 {
+		subset = subset[:80]
+	}
+	if err := st.PutRunModels(cancelled.ID, subset); err != nil {
+		return err
+	}
+	ids := map[string]bool{}
+	for i, m := range subset {
+		if i < 40 {
+			ids[m.ID] = true
+		}
+	}
+	var partial []core.Attempt
+	for _, a := range attempts {
+		if a.Round == 1 && ids[a.ModelID] {
+			partial = append(partial, a)
+		}
+	}
+	if len(partial) > 0 {
+		if err := st.InsertAttempts(cancelled.ID, partial); err != nil {
+			return err
+		}
+	}
+	_ = st.SetRunTimes(cancelled.ID, base.Add(10*time.Minute), base.Add(12*time.Minute))
+	return st.SetRunStatus(cancelled.ID, core.StatusCancelled, "")
 }

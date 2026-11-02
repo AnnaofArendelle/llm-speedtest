@@ -2,11 +2,13 @@ import { useMemo, useState } from 'react';
 import { Box, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useFamilies } from '@/api/hooks';
 import type { FamilyStat } from '@/api/types';
 import { EmptyState } from '@/components/EmptyState';
 import { LatencyChip, TierBadge } from '@/components/badges';
 import { gridDefaults, gridLocale, gridSx } from '@/lib/grid';
+import { arr, entries, keys } from '@/lib/safe';
 import type { TabProps } from './types';
 
 export default function FamiliesTab({ runId, onFamily }: TabProps) {
@@ -21,7 +23,7 @@ export default function FamiliesTab({ runId, onFamily }: TabProps) {
           (f) =>
             f.display.toLowerCase().includes(s) ||
             f.key.includes(s) ||
-            f.member_ids.some((m) => m.toLowerCase().includes(s)),
+            arr(f.member_ids).some((m) => m.toLowerCase().includes(s)),
         )
       : all;
   }, [q.data, search]);
@@ -64,7 +66,7 @@ export default function FamiliesTab({ runId, onFamily }: TabProps) {
       width: 110,
       renderCell: (p) => (
         <span className="mono">
-          {p.row.n_prov_ok}/{Object.keys(p.row.providers).length}
+          {p.row.n_prov_ok}/{keys(p.row.providers).length}
         </span>
       ),
     },
@@ -87,7 +89,7 @@ export default function FamiliesTab({ runId, onFamily }: TabProps) {
       sortable: false,
       renderCell: (p) => (
         <span className="mono" style={{ fontSize: 12 }}>
-          {Object.entries(p.row.sources)
+          {entries(p.row.sources)
             .map(([s, n]) => `${s}×${n}`)
             .join(' ')}
         </span>
@@ -112,7 +114,7 @@ export default function FamiliesTab({ runId, onFamily }: TabProps) {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',

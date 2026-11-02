@@ -1,0 +1,35 @@
+{
+  "children": [],
+  "inflight": [],
+  "latest": {
+    "kind": "",
+    "done": 0,
+    "total": 0,
+    "ok": 0,
+    "fail": 0,
+    "at": "0001-01-01T00:00:00Z"
+  },
+  "run": {
+    "id": "20261102-133227-1457aedbe7f0",
+    "kind": "scan",
+    "endpoint_id": "20261102-133227-3bd17d9ca37f",
+    "endpoint_name": "mock",
+    "base_url": "http://127.0.0.1:46183/v1",
+    "dialect": "generic",
+    "status": "running",
+    "preset": "quick",
+    "spec": {
+      "kind": "scan",
+      "suite": {
+        "profile": "quick"
+      }
+    },
+    "note": "",
+    "created_at": "2026-11-02T21:32:27.037096655+08:00",
+    "started_at": "2026-11-02T13:32:27.037464597Z",
+    "finished_at": "0001-01-01T00:00:00Z",
+    "summary": {},
+    "progress": {}
+  },
+  "running": false
+}

@@ -1,0 +1,12 @@
+{
+  "base_url": "http://127.0.0.1:46183/v1",
+  "reachable": true,
+  "auth_ok": true,
+  "models": 3,
+  "owners": 2,
+  "dialect": {
+    "name": "generic",
+    "score": 0
+  },
+  "latency_s": 0.004535661
+}

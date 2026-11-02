@@ -1,0 +1,88 @@
+{
+  "groups": [
+    {
+      "reason": "auth",
+      "info": {
+        "code": "auth",
+        "name": "认证失败 (401/403)",
+        "name_en": "Authentication failed (401/403)",
+        "description": "上游拒绝了凭证：OAuth token 失效/过期、API Key 无效或被停用。整个提供商下的模型都会同样失败。",
+        "description_en": "The upstream rejected the credential: expired OAuth token, invalid or disabled API key. Every model behind the provider fails the same way.",
+        "fix": "重新登录 OAuth 或更换 API Key。",
+        "fix_en": "Re-authenticate or replace the API key.",
+        "provider_level": true,
+        "transient": false
+      },
+      "count": 1,
+      "by_provider": {
+        "dead": [
+          {
+            "id": "x/locked",
+            "owned_by": "x",
+            "upstream": "locked",
+            "provider_key": "dead",
+            "provider_name": "dead",
+            "family_key": "locked||",
+            "family_canon": "locked",
+            "family_source": "rule",
+            "status": "fail",
+            "attempts": 1,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "auth",
+            "first_reason": "auth",
+            "http": 401,
+            "message": "Invalid API key",
+            "fail_latency_s": 0.001128366
+          }
+        ]
+      }
+    },
+    {
+      "reason": "model_unavailable",
+      "info": {
+        "code": "model_unavailable",
+        "name": "模型不存在/不可用 (404/400)",
+        "name_en": "Model not found / unavailable (404/400)",
+        "description": "上游不认识该模型名、账号无权访问、模型已停用或暂时禁用；也包含网关本地直接判定“不支持”的模型。属于模型级问题。",
+        "description_en": "The upstream does not know the model, the account cannot access it, or it is disabled; includes models the gateway rejects locally. Model-level.",
+        "fix": "从列表移除，或改用上游当前有效的模型名。",
+        "fix_en": "Remove it from the list or switch to a currently valid model name.",
+        "provider_level": false,
+        "transient": false
+      },
+      "count": 1,
+      "by_provider": {
+        "dead": [
+          {
+            "id": "x/gone",
+            "owned_by": "x",
+            "upstream": "gone",
+            "provider_key": "dead",
+            "provider_name": "dead",
+            "family_key": "gone||",
+            "family_canon": "gone",
+            "family_source": "rule",
+            "status": "fail",
+            "attempts": 1,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "model_unavailable",
+            "first_reason": "model_unavailable",
+            "http": 404,
+            "message": "The model 'gone' does not exist",
+            "fail_latency_s": 0.001038585
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -99,6 +99,7 @@ type ModelStat struct {
 	Inner          int            `json:"inner,omitempty"`
 	Message        string         `json:"message,omitempty"`
 	FailLatency    float64        `json:"fail_latency_s,omitempty"`
+	Skipped        int            `json:"skipped,omitempty"` // attempts cancelled by the user (excluded from the statistics)
 	History        []core.Attempt `json:"-"`
 }
 
@@ -298,9 +299,22 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 			}
 			return as[i].At.Before(as[j].At)
 		})
+		// Attempts cancelled through "skip" are excluded from the availability
+		// and latency statistics; they are only counted.
+		full := as
+		live := make([]core.Attempt, 0, len(as))
+		skipped := 0
+		for _, a := range as {
+			if a.Reason == classify.ReasonSkipped {
+				skipped++
+				continue
+			}
+			live = append(live, a)
+		}
+		as = live
 		ms := &ModelStat{ID: m.ID, OwnedBy: m.OwnedBy, Upstream: m.Upstream, ProviderKey: m.ProviderKey, ProviderName: m.ProviderName,
 			FamilyKey: m.FamilyKey, FamilyCanon: m.FamilyCanon, FamilySource: m.FamilySource, FamilyEvidence: m.FamilyEvidence,
-			ContextLength: m.ContextLength, Attempts: len(as), History: as}
+			ContextLength: m.ContextLength, Attempts: len(as), History: full, Skipped: skipped}
 		if ms.ProviderName == "" {
 			ms.ProviderName = ms.ProviderKey
 		}
@@ -341,6 +355,8 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 			if ms.Reason == "" {
 				ms.Reason = "unknown"
 			}
+		case ms.Skipped > 0:
+			ms.Status, ms.Reason, ms.Message = "fail", classify.ReasonSkipped, "skipped by user"
 		default:
 			ms.Status = "untested"
 			ms.Reason = "untested"
@@ -357,7 +373,7 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 		}
 		f := res.familyByKey[key]
 		if f == nil {
-			f = &FamilyStat{Key: key, Providers: map[string]int{}, OKProviders: map[string]int{}, Reasons: map[string]int{}, Sources: map[string]int{}}
+			f = &FamilyStat{Key: key, MemberIDs: []string{}, StableIDs: []string{}, Providers: map[string]int{}, OKProviders: map[string]int{}, Reasons: map[string]int{}, Sources: map[string]int{}}
 			res.familyByKey[key] = f
 		}
 		f.Members = append(f.Members, ms)
@@ -503,6 +519,15 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 		return fails[i].ID < fails[j].ID
 	})
 	res.Available = oks
+	if res.Available == nil {
+		res.Available = []*ModelStat{}
+	}
+	if res.Families == nil {
+		res.Families = []*FamilyStat{}
+	}
+	if res.UnavailableFamilies == nil {
+		res.UnavailableFamilies = []*FamilyStat{}
+	}
 	res.Models = append(append([]*ModelStat{}, oks...), fails...)
 
 	// Providers
@@ -552,6 +577,10 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 		return a.Key < b.Key
 	})
 
+	if res.Providers == nil {
+		res.Providers = []*ProviderStat{}
+	}
+
 	// Summary
 	s := &res.Summary
 	s.Models = len(res.Models)
@@ -576,6 +605,7 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 			s.ProviderLevelFail++
 		}
 	}
+	s.Buckets = []Bucket{{"< 1 s", 0, 1, 0}, {"1 – 2 s", 1, 2, 0}, {"2 – 5 s", 2, 5, 0}, {"5 – 10 s", 5, 10, 0}, {"10 – 30 s", 10, 30, 0}, {"≥ 30 s", 30, 1e9, 0}}
 	if len(oks) > 0 {
 		meds := make([]float64, 0, len(oks))
 		for _, m := range oks {
@@ -583,7 +613,6 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 		}
 		st := metrics.Summarise(meds)
 		s.LatencyMedian, s.LatencyP90, s.LatencyMin, s.LatencyMax = st.Median, st.P90, st.Min, st.Max
-		s.Buckets = []Bucket{{"< 1 s", 0, 1, 0}, {"1 – 2 s", 1, 2, 0}, {"2 – 5 s", 2, 5, 0}, {"5 – 10 s", 5, 10, 0}, {"10 – 30 s", 10, 30, 0}, {"≥ 30 s", 30, 1e9, 0}}
 		for _, v := range meds {
 			for i := range s.Buckets {
 				if v >= s.Buckets[i].Lo && v < s.Buckets[i].Hi {

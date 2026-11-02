@@ -1,0 +1,46 @@
+{
+  "groups": [
+    {
+      "reason": "model_unavailable",
+      "info": {
+        "code": "model_unavailable",
+        "name": "模型不存在/不可用 (404/400)",
+        "name_en": "Model not found / unavailable (404/400)",
+        "description": "上游不认识该模型名、账号无权访问、模型已停用或暂时禁用；也包含网关本地直接判定“不支持”的模型。属于模型级问题。",
+        "description_en": "The upstream does not know the model, the account cannot access it, or it is disabled; includes models the gateway rejects locally. Model-level.",
+        "fix": "从列表移除，或改用上游当前有效的模型名。",
+        "fix_en": "Remove it from the list or switch to a currently valid model name.",
+        "provider_level": false,
+        "transient": false
+      },
+      "count": 1,
+      "by_provider": {
+        "b": [
+          {
+            "id": "b/missing",
+            "owned_by": "b",
+            "upstream": "missing",
+            "provider_key": "b",
+            "provider_name": "b",
+            "family_key": "missing||",
+            "family_canon": "missing",
+            "family_source": "rule",
+            "status": "fail",
+            "attempts": 1,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "model_unavailable",
+            "first_reason": "model_unavailable",
+            "http": 404,
+            "message": "The model 'missing' does not exist",
+            "fail_latency_s": 0.000431189
+          }
+        ]
+      }
+    }
+  ]
+}

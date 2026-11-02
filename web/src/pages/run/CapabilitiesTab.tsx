@@ -6,9 +6,11 @@ import RemoveRounded from '@mui/icons-material/RemoveRounded';
 import { useTranslation } from 'react-i18next';
 import { useCapabilities, useProbes } from '@/api/hooks';
 import { EmptyState } from '@/components/EmptyState';
+import { LoadingBlock } from '@/components/LoadingBlock';
 import { Section } from '@/components/Section';
 import { useTokens } from '@/lib/tokens';
 import { fmtSeconds } from '@/lib/format';
+import { arr, obj } from '@/lib/safe';
 import type { TabProps } from './types';
 
 export default function CapabilitiesTab({ runId, onModel }: TabProps) {
@@ -17,10 +19,14 @@ export default function CapabilitiesTab({ runId, onModel }: TabProps) {
   const q = useCapabilities(runId);
   const probes = useProbes();
   const zh = i18n.language.startsWith('zh');
+  if (q.isLoading) return <LoadingBlock rows={3} />;
   if (q.error) return <EmptyState title={t('common.empty')} description={String(q.error)} />;
   const m = q.data?.matrix;
   if (!m) return null;
-  const models = m.models ?? [];
+  const models = arr(m.models);
+  const probeIds = arr(m.probes);
+  const cells = obj(m.cells);
+  const support = obj(m.support);
   if (models.length === 0) return <EmptyState title={t('common.empty')} />;
   const describe = (id: string) => probes.data?.find((p) => p.id === id)?.[zh ? 'zh' : 'en'] ?? id;
   const icon = (status: string) => {
@@ -35,7 +41,7 @@ export default function CapabilitiesTab({ runId, onModel }: TabProps) {
         return <RemoveRounded sx={{ color: 'text.disabled' }} fontSize="small" />;
     }
   };
-  const supportByProbe = (probe: string) => models.filter((id) => m.cells[id]?.[probe]?.status === 'supported').length;
+  const supportByProbe = (probe: string) => models.filter((id) => cells[id]?.[probe]?.status === 'supported').length;
   return (
     <Stack spacing={2}>
       <Typography variant="body2" color="text.secondary">
@@ -60,7 +66,7 @@ export default function CapabilitiesTab({ runId, onModel }: TabProps) {
               <TableRow>
                 <TableCell>{t('common.model')}</TableCell>
                 <TableCell align="center">{t('run.capabilities.support')}</TableCell>
-                {m.probes.map((p) => (
+                {probeIds.map((p) => (
                   <TableCell key={p} align="center">
                     <Tooltip title={describe(p)}>
                       <Box>
@@ -88,10 +94,10 @@ export default function CapabilitiesTab({ runId, onModel }: TabProps) {
                     {id}
                   </TableCell>
                   <TableCell align="center" className="mono" sx={{ fontWeight: 700 }}>
-                    {m.support[id] ?? 0}/{m.probes.length}
+                    {support[id] ?? 0}/{probeIds.length}
                   </TableCell>
-                  {m.probes.map((p) => {
-                    const c = m.cells[id]?.[p];
+                  {probeIds.map((p) => {
+                    const c = cells[id]?.[p];
                     return (
                       <TableCell key={p} align="center">
                         <Tooltip

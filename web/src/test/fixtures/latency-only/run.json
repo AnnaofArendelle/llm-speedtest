@@ -1,0 +1,273 @@
+{
+  "children": [],
+  "inflight": [],
+  "latest": {
+    "seq": 3,
+    "kind": "sample",
+    "run_id": "20261102-133227-228e4c2dffe2",
+    "stage": "latency",
+    "done": 1,
+    "total": 1,
+    "ok": 1,
+    "fail": 0,
+    "sample": {
+      "model_id": "a/fast",
+      "index": 0,
+      "warm": true,
+      "at": "2026-11-02T21:32:27.498103811+08:00",
+      "ok": true,
+      "ttft": 13071734,
+      "ttst": 2251786,
+      "tpot": 2314386,
+      "e2e": 17700506,
+      "tok_per_s": 432.0800419636137,
+      "input_tokens": 12,
+      "output_tokens": 3,
+      "tokens_exact": true,
+      "served_model": "fast"
+    },
+    "at": "2026-11-02T21:32:27.515821202+08:00"
+  },
+  "run": {
+    "id": "20261102-133227-228e4c2dffe2",
+    "kind": "latency",
+    "endpoint_id": "20261102-133227-3bd17d9ca37f",
+    "endpoint_name": "mock",
+    "base_url": "http://127.0.0.1:46183/v1",
+    "dialect": "",
+    "status": "done",
+    "preset": "quick",
+    "spec": {
+      "kind": "latency",
+      "models": [
+        "a/fast"
+      ],
+      "suite": {
+        "profile": "quick",
+        "scan": true,
+        "latency": true,
+        "latency_top": 1,
+        "capability": true,
+        "capability_top": 1,
+        "quality": true,
+        "quality_top": 1,
+        "load": false,
+        "load_model": "",
+        "filter": {
+          "exclude_owners": [
+            "combo"
+          ],
+          "include_owners": null,
+          "id_regex": "",
+          "exclude_regex": "",
+          "limit": 0,
+          "models": null
+        },
+        "specs": {
+          "scan": {
+            "first": {
+              "concurrency": 4,
+              "per_provider": 2,
+              "timeout": 2000000000
+            },
+            "retry": {
+              "concurrency": 0,
+              "per_provider": 0,
+              "timeout": 0
+            },
+            "final": {
+              "concurrency": 0,
+              "per_provider": 0,
+              "timeout": 0
+            },
+            "resample": 0,
+            "max_tokens": 1,
+            "prompt": "hi",
+            "seed": 0,
+            "max_cooldown_wait": 120000000000,
+            "max_backoff": 30000000000
+          },
+          "latency": {
+            "samples": 1,
+            "warmup": 0,
+            "input_tokens": 20,
+            "output_tokens": 8,
+            "concurrency": 2,
+            "per_provider": 1,
+            "timeout": 5000000000,
+            "stall_timeout": 30000000000,
+            "seed": 42
+          },
+          "load": {
+            "model": "",
+            "mode": "concurrency",
+            "levels": [
+              1,
+              2,
+              4
+            ],
+            "rate": 2,
+            "duration": 30000000000,
+            "requests": 0,
+            "ramp_up": 0,
+            "input_tokens": 100,
+            "output_tokens": 64,
+            "stream": true,
+            "timeout": 120000000000,
+            "stall_timeout": 30000000000,
+            "max_inflight": 64,
+            "slo": {
+              "ttft": 1000000000,
+              "tpot": 50000000,
+              "e2e": 0
+            },
+            "seed": 42
+          },
+          "capability": {
+            "probes": [
+              "streaming",
+              "usage_in_stream",
+              "tools",
+              "json_mode",
+              "json_schema",
+              "vision",
+              "system_prompt",
+              "max_tokens",
+              "stop",
+              "determinism",
+              "reasoning_param",
+              "long_context",
+              "embeddings"
+            ],
+            "concurrency": 2,
+            "per_provider": 1,
+            "timeout": 5000000000,
+            "long_context_tiers": [
+              2000
+            ]
+          },
+          "quality": {
+            "trials": 1,
+            "concurrency": 2,
+            "per_provider": 1,
+            "timeout": 5000000000,
+            "max_tokens": 64
+          },
+          "scoring": {
+            "w_stability": 0.4,
+            "w_breadth": 0.3,
+            "w_speed": 0.3,
+            "speed_lo_s": 0.5,
+            "speed_hi_s": 30,
+            "model_tier_a": 0.999,
+            "model_tier_b": 0.66,
+            "family_tier_a": 0.95,
+            "family_tier_b": 0.66
+          }
+        },
+        "lang": "zh"
+      }
+    },
+    "note": "",
+    "created_at": "2026-11-02T13:32:27.496984978Z",
+    "started_at": "2026-11-02T13:32:27.497932683Z",
+    "finished_at": "2026-11-02T13:32:27.516219971Z",
+    "summary": {
+      "latency": [
+        {
+          "model_id": "a/fast",
+          "samples": 1,
+          "ok": 1,
+          "ttft_s": {
+            "count": 1,
+            "min": 0.013071734,
+            "max": 0.013071734,
+            "mean": 0.013071734,
+            "median": 0.013071734,
+            "p75": 0.013071734,
+            "p90": 0.013071734,
+            "p95": 0.013071734,
+            "p99": 0.013071734,
+            "stddev": 0
+          },
+          "ttst_s": {
+            "count": 1,
+            "min": 0.002251786,
+            "max": 0.002251786,
+            "mean": 0.002251786,
+            "median": 0.002251786,
+            "p75": 0.002251786,
+            "p90": 0.002251786,
+            "p95": 0.002251786,
+            "p99": 0.002251786,
+            "stddev": 0
+          },
+          "tpot_s": {
+            "count": 1,
+            "min": 0.002314386,
+            "max": 0.002314386,
+            "mean": 0.002314386,
+            "median": 0.002314386,
+            "p75": 0.002314386,
+            "p90": 0.002314386,
+            "p95": 0.002314386,
+            "p99": 0.002314386,
+            "stddev": 0
+          },
+          "e2e_s": {
+            "count": 1,
+            "min": 0.017700506,
+            "max": 0.017700506,
+            "mean": 0.017700506,
+            "median": 0.017700506,
+            "p75": 0.017700506,
+            "p90": 0.017700506,
+            "p95": 0.017700506,
+            "p99": 0.017700506,
+            "stddev": 0
+          },
+          "tok_per_s": {
+            "count": 1,
+            "min": 432.0800419636137,
+            "max": 432.0800419636137,
+            "mean": 432.0800419636137,
+            "median": 432.0800419636137,
+            "p75": 432.0800419636137,
+            "p90": 432.0800419636137,
+            "p95": 432.0800419636137,
+            "p99": 432.0800419636137,
+            "stddev": 0
+          },
+          "output_tokens": {
+            "count": 1,
+            "min": 3,
+            "max": 3,
+            "mean": 3,
+            "median": 3,
+            "p75": 3,
+            "p90": 3,
+            "p95": 3,
+            "p99": 3,
+            "stddev": 0
+          },
+          "input_tok_per_s": 918.0113365219947,
+          "tokens_exact": true,
+          "served_model": "fast",
+          "rank": 1
+        }
+      ]
+    },
+    "progress": {
+      "at": "2026-11-02T21:32:27.515821202+08:00",
+      "done": 1,
+      "eta_s": 0,
+      "fail": 0,
+      "ok": 1,
+      "round": 0,
+      "rounds": 0,
+      "stage": "latency",
+      "total": 1
+    }
+  },
+  "running": false
+}

@@ -1,0 +1,55 @@
+{
+  "family": {
+    "key": "fast||",
+    "display": "fast",
+    "member_ids": [
+      "a/fast"
+    ],
+    "n": 1,
+    "ok": 0,
+    "providers": {
+      "a": 1
+    },
+    "ok_providers": {},
+    "n_prov_ok": 0,
+    "n_prov_stable": 0,
+    "attempts": 0,
+    "successes": 0,
+    "rate": 0,
+    "min_s": 0,
+    "median_s": 0,
+    "max_s": 0,
+    "stable_ids": [],
+    "score": 0,
+    "s_stability": 0,
+    "s_breadth": 0,
+    "s_speed": 0,
+    "reasons": {
+      "untested": 1
+    },
+    "sources": {
+      "rule": 1
+    }
+  },
+  "members": [
+    {
+      "id": "a/fast",
+      "owned_by": "a",
+      "upstream": "fast",
+      "provider_key": "a",
+      "provider_name": "a",
+      "family_key": "fast||",
+      "family_canon": "fast",
+      "family_source": "rule",
+      "status": "untested",
+      "attempts": 0,
+      "ok": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "jitter": 0,
+      "reason": "untested"
+    }
+  ]
+}

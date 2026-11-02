@@ -16,9 +16,12 @@ import CloseRounded from '@mui/icons-material/CloseRounded';
 import { useTranslation } from 'react-i18next';
 import { useFamily } from '@/api/hooks';
 import { useReasonLookup } from '@/lib/reasons';
-import { tierColor } from '@/app/theme';
+import { tierColor, radius } from '@/app/theme';
+import { ErrorBoundary } from './ErrorBoundary';
+import { ProfileCard } from './ProfileCard';
 import { LatencyChip, MiniStat, ReasonChip, ScoreBar, TierBadge } from './badges';
 import { useTokens } from '@/lib/tokens';
+import { entries, keys, obj } from '@/lib/safe';
 
 export function FamilyDrawer({
   runId,
@@ -80,7 +83,7 @@ export function FamilyDrawer({
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: 2,
                 p: 2,
-                borderRadius: 4,
+                borderRadius: radius.block,
                 bgcolor: 'background.paper',
               }}
             >
@@ -105,20 +108,20 @@ export function FamilyDrawer({
                 mono={false}
               />
               <MiniStat label={t('run.ranking.availableMembers')} value={`${f.ok}/${f.n}`} />
-              <MiniStat
-                label={t('run.ranking.providersOk')}
-                value={`${f.n_prov_ok}/${Object.keys(f.providers).length}`}
-              />
+              <MiniStat label={t('run.ranking.providersOk')} value={`${f.n_prov_ok}/${keys(f.providers).length}`} />
             </Box>
+            <ErrorBoundary label={t('profile.title')} resetKeys={[f.key]}>
+              <ProfileCard runId={runId} kind="family" id={f.key} />
+            </ErrorBoundary>
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
                 {t('common.providers')}
               </Typography>
               <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-                {Object.entries(f.providers)
+                {entries(f.providers)
                   .sort((a, b) => b[1] - a[1])
                   .map(([p, n]) => {
-                    const ok = f.ok_providers[p] ?? 0;
+                    const ok = obj(f.ok_providers)[p] ?? 0;
                     const color = ok === n ? tk.tierA : ok > 0 ? tk.tierB : tk.fail;
                     return (
                       <Chip
@@ -131,13 +134,13 @@ export function FamilyDrawer({
                   })}
               </Stack>
             </Box>
-            {Object.keys(f.reasons).length > 0 && (
+            {keys(f.reasons).length > 0 && (
               <Box>
                 <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
                   {t('run.ranking.topReasons')}
                 </Typography>
                 <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-                  {Object.entries(f.reasons)
+                  {entries(f.reasons)
                     .sort((a, b) => b[1] - a[1])
                     .map(([r, n]) => (
                       <Stack key={r} direction="row" spacing={0.5} alignItems="center">
@@ -152,7 +155,7 @@ export function FamilyDrawer({
             )}
             <Typography variant="body2" color="text.secondary">
               {t('run.families.sources')}:{' '}
-              {Object.entries(f.sources)
+              {entries(f.sources)
                 .map(([s, n]) => `${s} ×${n}`)
                 .join(' · ') || t('common.none')}
             </Typography>

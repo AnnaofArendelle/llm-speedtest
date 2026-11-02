@@ -61,7 +61,8 @@
 | **负载测试** | 闭环并发 sweep 或开环泊松速率、ramp-up、请求/token 吞吐、错误率、SLO 下的 goodput | 并发 → 吞吐/延迟曲线 |
 | **能力探测** | 流式、`include_usage`、工具调用、JSON 模式、JSON Schema、视觉、系统提示、`max_tokens`、`stop`、确定性、推理参数、长上下文梯度、embeddings | 能力矩阵 |
 | **质量抽检** | 约 20 道确定性题目（YAML 可扩展）、多次试验、一致性、自述身份 | 分数表 + 分类通过率 |
-| **一键套件** | 扫描 → 延迟（前 N）→ 能力 → 质量 → 可选负载，一条命令或一次点击 | 带实时 SSE 进度的综合看板 |
+| **一键套件** | 扫描 → 延迟（前 N）→ 能力 → 质量 → 可选负载，一条命令或一次点击 | 带实时 SSE 进度、在途请求列表与单模型**跳过**的综合看板 |
+| **能力矩阵** | 每个模型/系列的八维雷达（稳定性、速度、广度、TTFT、吞吐、能力覆盖、质量、负载）与阶段覆盖面 | 模型 / 系列抽屉 |
 | **导出与对比** | 沿用详尽结构的 Markdown 报告、带 schema 版本的 JSON、CSV、两次运行对比 | 导出页、对比页 |
 | **AI 技能与 MCP** | `SKILL.md` 技能包、含 20 个工具的 MCP 服务器（`llm-speedtest mcp`）、一键安装 | — |
 | **演示模式** | `serve --demo` 载入脱敏的参考扫描数据，无需端点即可体验 | — |
@@ -328,8 +329,9 @@ make check                     # 跑一遍 CI 的全部检查
 make screenshots               # 从 `serve --demo` 重新生成 docs/screenshots
 ```
 
-CI 在 Linux、macOS、Windows 上运行，包含竞态检测、覆盖率门槛、golangci-lint、govulncheck、CodeQL、actionlint、shellcheck 与
-Docker 构建。推送 `v*` 标签即自动发布 GitHub Release（6 个平台、checksums、技能 zip）与 GHCR 多架构镜像。
+CI 在 Linux、macOS、Windows 上运行，包含竞态检测、覆盖率门槛、golangci-lint、govulncheck、CodeQL、actionlint、shellcheck、
+Docker 构建与 Playwright 端到端任务。Web UI 使用从真实服务端录制的 API fixtures（`make fixtures`）测试：渲染矩阵会在每一种运行状态
+（发现中、运行中、失败、全部不可用、完整套件、单阶段）下挂载每个页面与标签页，另有交互、SSE、i18n 与样式守卫测试和覆盖率门槛。推送 `v*` 标签即自动发布 GitHub Release（6 个平台、checksums、技能 zip）与 GHCR 多架构镜像。
 详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 路线图

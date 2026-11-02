@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import * as echarts from 'echarts/core';
-import { BarChart, GaugeChart, LineChart, PieChart, ScatterChart } from 'echarts/charts';
+import { BarChart, GaugeChart, LineChart, PieChart, ScatterChart, RadarChart as EChartsRadar } from 'echarts/charts';
 import {
   DataZoomComponent,
   GridComponent,
@@ -8,6 +8,7 @@ import {
   MarkLineComponent,
   TitleComponent,
   TooltipComponent,
+  RadarComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
@@ -30,6 +31,8 @@ echarts.use([
   MarkLineComponent,
   TitleComponent,
   CanvasRenderer,
+  EChartsRadar,
+  RadarComponent,
 ]);
 
 export function EChart({

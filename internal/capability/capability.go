@@ -111,6 +111,8 @@ type Runner struct {
 	Sink   Sink
 	Report func(core.Event)
 	Stage  string
+	// Skipper (optional) lets users skip models while the run is in progress.
+	Skipper *core.Skipper
 }
 
 // Run probes every target.
@@ -153,14 +155,25 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.CapabilityRe
 				return err
 			}
 			defer global.Release(1)
+			tctx, release := r.Skipper.Watch(gctx, r.Stage, t.ID, 0)
+			defer release()
 			for _, p := range r.Spec.Probes {
 				if gctx.Err() != nil {
 					return gctx.Err()
 				}
 				start := time.Now()
-				status, evidence := r.probe(gctx, p, t)
-				if gctx.Err() != nil {
-					return gctx.Err()
+				var status, evidence string
+				if r.Skipper.IsSkipped(t.ID) {
+					status, evidence = "skipped", "skipped by user"
+				} else {
+					emit(core.Event{Kind: core.EventStart, Stage: r.Stage, Attempt: &core.Attempt{ModelID: t.ID, At: start}, Message: t.ID + " " + p})
+					status, evidence = r.probe(tctx, p, t)
+					if gctx.Err() != nil {
+						return gctx.Err()
+					}
+					if r.Skipper.IsSkipped(t.ID) {
+						status, evidence = "skipped", "skipped by user"
+					}
 				}
 				res := core.CapabilityResult{ModelID: t.ID, Probe: p, Status: status, Evidence: evidence, Latency: time.Since(start)}
 				if r.Sink != nil {
@@ -448,7 +461,7 @@ func Summarize(results []core.CapabilityResult, probes []string) Matrix {
 	if len(probes) == 0 {
 		probes = Probes
 	}
-	m := Matrix{Probes: probes, Cells: map[string]map[string]Cell{}, Support: map[string]int{}}
+	m := Matrix{Models: []string{}, Probes: probes, Cells: map[string]map[string]Cell{}, Support: map[string]int{}}
 	seen := map[string]bool{}
 	for _, r := range results {
 		if !seen[r.ModelID] {

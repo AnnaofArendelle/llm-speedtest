@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { Layout } from './Layout';
-import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
+import { ErrorPage } from '@/components/ErrorPage';
 
 const page = (load: () => Promise<{ default: React.ComponentType }>) => async () => {
   const m = await load();
@@ -11,7 +11,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
-    errorElement: <RouteErrorBoundary />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, lazy: page(() => import('@/pages/Dashboard')) },
       { path: 'new', lazy: page(() => import('@/pages/NewRun')) },

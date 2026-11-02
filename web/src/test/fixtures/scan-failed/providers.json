@@ -1,0 +1,50 @@
+{
+  "field": "owned_by",
+  "providers": [
+    {
+      "key": "a",
+      "name": "a",
+      "models": 2,
+      "families": 2,
+      "ok": 0,
+      "rate": 0,
+      "median_s": 0,
+      "top_reason": "skipped",
+      "top_reason_count": 1,
+      "reasons": {
+        "skipped": 1,
+        "untested": 1
+      },
+      "account_level_all": false,
+      "evidence": [
+        {
+          "field": "owned_by",
+          "value": "a"
+        }
+      ]
+    },
+    {
+      "key": "b",
+      "name": "b",
+      "models": 1,
+      "families": 1,
+      "ok": 0,
+      "rate": 0,
+      "median_s": 0,
+      "top_reason": "model_unavailable",
+      "top_reason_count": 1,
+      "reasons": {
+        "model_unavailable": 1
+      },
+      "account_level_all": false,
+      "evidence": [
+        {
+          "field": "owned_by",
+          "value": "b"
+        }
+      ]
+    }
+  ],
+  "rationale": "owned_by discriminates between models (2 distinct values)",
+  "suggestions": null
+}

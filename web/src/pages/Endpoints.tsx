@@ -53,6 +53,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { OverridesPanel } from '@/components/OverridesPanel';
 import { useTokens } from '@/lib/tokens';
 import { fmtSeconds } from '@/lib/format';
+import { arr } from '@/lib/safe';
 
 function parseHeaders(text: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -139,7 +140,7 @@ function EndpointDialog({ open, initial, onClose }: { open: boolean; initial?: E
     );
   };
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 5 } } }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{initial ? t('endpoints.edit') : t('endpoints.add')}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -242,13 +243,7 @@ function EndpointDialog({ open, initial, onClose }: { open: boolean; initial?: E
 function DiscoverDialog({ result, onClose }: { result: DiscoverResult | null; onClose: () => void }) {
   const { t } = useTranslation();
   return (
-    <Dialog
-      open={!!result}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-      slotProps={{ paper: { sx: { borderRadius: 5 } } }}
-    >
+    <Dialog open={!!result} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>{t('endpoints.previewTitle')}</DialogTitle>
       <DialogContent>
         {result && (
@@ -257,7 +252,7 @@ function DiscoverDialog({ result, onClose }: { result: DiscoverResult | null; on
               {t('endpoints.discoverResult', {
                 total: result.total,
                 filtered: result.filtered,
-                providers: result.providers.length,
+                providers: arr(result.providers).length,
                 field: result.provider_field,
                 families: result.families,
               })}
@@ -266,9 +261,11 @@ function DiscoverDialog({ result, onClose }: { result: DiscoverResult | null; on
               {result.provider_rationale}
             </Typography>
             <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-              {result.providers.slice(0, 60).map((p) => (
-                <Chip key={p.key} size="small" variant="outlined" label={`${p.name} · ${p.models}`} />
-              ))}
+              {arr(result.providers)
+                .slice(0, 60)
+                .map((p) => (
+                  <Chip key={p.key} size="small" variant="outlined" label={`${p.name} · ${p.models}`} />
+                ))}
             </Stack>
             <Box sx={{ maxHeight: 360, overflow: 'auto' }}>
               <Table size="small" stickyHeader>
@@ -281,14 +278,16 @@ function DiscoverDialog({ result, onClose }: { result: DiscoverResult | null; on
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {result.models.slice(0, 500).map((m) => (
-                    <TableRow key={m.id} hover>
-                      <TableCell className="mono">{m.id}</TableCell>
-                      <TableCell>{m.provider_name}</TableCell>
-                      <TableCell>{m.family_canon}</TableCell>
-                      <TableCell>{m.family_source}</TableCell>
-                    </TableRow>
-                  ))}
+                  {arr(result.models)
+                    .slice(0, 500)
+                    .map((m) => (
+                      <TableRow key={m.id} hover>
+                        <TableCell className="mono">{m.id}</TableCell>
+                        <TableCell>{m.provider_name}</TableCell>
+                        <TableCell>{m.family_canon}</TableCell>
+                        <TableCell>{m.family_source}</TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </Box>
@@ -458,13 +457,7 @@ export default function Endpoints() {
         onClose={() => setToDelete(null)}
         onConfirm={() => toDelete && del.mutate(toDelete.id, { onSuccess: () => setToDelete(null) })}
       />
-      <Dialog
-        open={!!overrides}
-        onClose={() => setOverrides(null)}
-        fullWidth
-        maxWidth="md"
-        slotProps={{ paper: { sx: { borderRadius: 5 } } }}
-      >
+      <Dialog open={!!overrides} onClose={() => setOverrides(null)} fullWidth maxWidth="md">
         <DialogTitle>
           {t('endpoints.overrides')} · {overrides?.name}
         </DialogTitle>

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router';
 import { Box, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid, type GridColDef, type GridPaginationModel, type GridSortModel } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useModels, useProviders, useSummary } from '@/api/hooks';
 import type { ModelStat } from '@/api/types';
 import { EmptyState } from '@/components/EmptyState';
@@ -10,6 +11,7 @@ import { LatencyChip, ProviderChip, ReasonChip, TierBadge } from '@/components/b
 import { fmtContext, fmtSeconds } from '@/lib/format';
 import { gridDefaults, gridLocale, gridSx } from '@/lib/grid';
 import { useReasonLookup } from '@/lib/reasons';
+import { keys, obj } from '@/lib/safe';
 import type { TabProps } from './types';
 
 const SORT_KEYS: Record<string, string> = {
@@ -71,7 +73,7 @@ export function ModelsTab({ runId, onModel }: TabProps) {
   const q = useModels(runId, query);
   const providers = useProviders(runId);
   const summary = useSummary(runId);
-  const reasons = Object.keys(summary.data?.summary.reasons ?? {}).sort();
+  const reasons = keys(summary.data?.summary?.reasons).sort();
 
   const columns: GridColDef<ModelStat>[] = [
     {
@@ -234,7 +236,7 @@ export function ModelsTab({ runId, onModel }: TabProps) {
             <MenuItem value="">{t('common.all')}</MenuItem>
             {reasons.map((r) => (
               <MenuItem key={r} value={r}>
-                {lookup.name(r)} ({summary.data?.summary.reasons[r]})
+                {lookup.name(r)} ({obj(summary.data?.summary?.reasons)[r]})
               </MenuItem>
             ))}
           </Select>
@@ -246,7 +248,7 @@ export function ModelsTab({ runId, onModel }: TabProps) {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',

@@ -31,6 +31,19 @@ export const tokens = {
 
 export type Tokens = { [K in keyof (typeof tokens)['light']]: string };
 
+/**
+ * Corner radii in CSS pixels. Always use these (or explicit px strings) in
+ * `sx`: a bare number there is multiplied by theme.shape.borderRadius.
+ */
+export const radius = {
+  card: '20px',
+  sheet: '28px',
+  control: '12px',
+  block: '16px',
+  bar: '8px',
+  pill: '999px',
+} as const;
+
 export function buildTheme(mode: PaletteMode) {
   const t = tokens[mode];
   return createTheme({
@@ -71,6 +84,29 @@ export function buildTheme(mode: PaletteMode) {
       MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 12 } } },
       MuiTab: { styleOverrides: { root: { textTransform: 'none', fontWeight: 600, minHeight: 44 } } },
       MuiTooltip: { styleOverrides: { tooltip: { fontSize: 12, borderRadius: 10 } } },
+      MuiDialog: { styleOverrides: { paper: { borderRadius: 28, backgroundImage: 'none' } } },
+      MuiDrawer: { styleOverrides: { paper: { backgroundImage: 'none' } } },
+      MuiAccordion: {
+        styleOverrides: {
+          root: {
+            borderRadius: 20,
+            backgroundImage: 'none',
+            boxShadow: 'none',
+            border: mode === 'dark' ? '1px solid rgba(154,163,178,0.12)' : '1px solid rgba(26,28,30,0.06)',
+            '&:before': { display: 'none' },
+            '&.Mui-expanded': { margin: 0 },
+            '&:first-of-type, &:last-of-type': { borderRadius: 20 },
+          },
+        },
+      },
+      MuiAccordionSummary: { styleOverrides: { root: { borderRadius: 20, minHeight: 56 } } },
+      MuiLinearProgress: { styleOverrides: { root: { borderRadius: 8 }, bar: { borderRadius: 8 } } },
+      MuiSkeleton: { styleOverrides: { rounded: { borderRadius: 20 } } },
+      MuiAlert: { styleOverrides: { root: { borderRadius: 16 } } },
+      MuiMenu: { styleOverrides: { paper: { borderRadius: 16 } } },
+      MuiPopover: { styleOverrides: { paper: { borderRadius: 16 } } },
+      MuiTabs: { styleOverrides: { indicator: { height: 3, borderRadius: 3 } } },
+      MuiToggleButton: { styleOverrides: { root: { textTransform: 'none', fontWeight: 600 } } },
     },
   });
 }

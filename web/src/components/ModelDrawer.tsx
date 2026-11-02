@@ -14,10 +14,13 @@ import {
 } from '@mui/material';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useModel } from '@/api/hooks';
 import { fmtContext, fmtDate, fmtSeconds } from '@/lib/format';
 import { useReasonLookup } from '@/lib/reasons';
 import { CopyButton } from './CopyButton';
+import { ErrorBoundary } from './ErrorBoundary';
+import { ProfileCard } from './ProfileCard';
 import { LatencyChip, MiniStat, ProviderChip, ReasonChip, TierBadge } from './badges';
 import { useTokens } from '@/lib/tokens';
 
@@ -79,6 +82,13 @@ export function ModelDrawer({
                 <ReasonChip code={m.reason} />
               )}
               <TierBadge tier={m.tier} />
+              {m.skipped ? (
+                <Chip
+                  size="small"
+                  label={t('run.models.skipped', { n: m.skipped })}
+                  sx={{ bgcolor: `${tk.tierB}22`, color: tk.tierB, fontWeight: 700 }}
+                />
+              ) : null}
               <ProviderChip name={m.provider_name} />
               <Chip
                 size="small"
@@ -101,7 +111,7 @@ export function ModelDrawer({
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: 2,
                 p: 2,
-                borderRadius: 4,
+                borderRadius: radius.block,
                 bgcolor: 'background.paper',
               }}
             >
@@ -112,6 +122,9 @@ export function ModelDrawer({
               <MiniStat label={t('common.attempts')} value={`${m.ok}/${m.attempts}`} />
               <MiniStat label={t('common.stability')} value={`${(m.rate * 100).toFixed(0)}%`} />
             </Box>
+            <ErrorBoundary label={t('profile.title')} resetKeys={[m.id]}>
+              <ProfileCard runId={runId} kind="model" id={m.id} />
+            </ErrorBoundary>
             {m.served_model && (
               <Typography variant="body2">
                 {t('run.models.served')}: <span className="mono">{m.served_model}</span>
@@ -141,7 +154,7 @@ export function ModelDrawer({
                   sx={{
                     m: 0,
                     p: 1.5,
-                    borderRadius: 3,
+                    borderRadius: radius.control,
                     bgcolor: 'background.paper',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',

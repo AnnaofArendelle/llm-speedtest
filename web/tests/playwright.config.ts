@@ -4,7 +4,7 @@ const baseURL = process.env.LST_BASE_URL ?? 'http://127.0.0.1:8790';
 
 export default defineConfig({
   testDir: '.',
-  testMatch: /.*\.spec\.ts/,
+  testMatch: /screenshots\.spec\.ts/,
   timeout: 90_000,
   retries: 0,
   reporter: [['list']],

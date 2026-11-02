@@ -2,9 +2,11 @@ import { useMemo } from 'react';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useLatency } from '@/api/hooks';
 import type { LatencyModelStats } from '@/api/types';
 import { EmptyState } from '@/components/EmptyState';
+import { LoadingBlock } from '@/components/LoadingBlock';
 import { Section } from '@/components/Section';
 import { useTokens } from '@/lib/tokens';
 import { LatencyBars } from '@/charts/LatencyBars';
@@ -146,6 +148,7 @@ export default function LatencyTab({ runId, onModel }: TabProps) {
       ),
     },
   ];
+  if (q.isLoading) return <LoadingBlock rows={3} />;
   if (q.error) return <EmptyState title={t('common.empty')} description={String(q.error)} />;
   if (q.isSuccess && stats.length === 0) return <EmptyState title={t('common.empty')} />;
   return (
@@ -190,7 +193,7 @@ export default function LatencyTab({ runId, onModel }: TabProps) {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',

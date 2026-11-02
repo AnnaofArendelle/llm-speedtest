@@ -94,6 +94,8 @@ type Runner struct {
 	Sink   Sink
 	Report func(core.Event)
 	Stage  string
+	// Skipper (optional) lets users skip models while the run is in progress.
+	Skipper *core.Skipper
 }
 
 // Run measures every target. Samples for one model are sequential; models
@@ -142,6 +144,9 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.LatencySampl
 			for i := 0; i < r.Spec.Warmup+r.Spec.Samples; i++ {
 				if gctx.Err() != nil {
 					return gctx.Err()
+				}
+				if r.Skipper.IsSkipped(t.ID) {
+					break
 				}
 				smp := r.one(gctx, t, i, i >= r.Spec.Warmup, rnd)
 				if gctx.Err() != nil {
@@ -192,10 +197,19 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.LatencySampl
 func (r *Runner) one(ctx context.Context, t Target, idx int, warm bool, rnd *rand.Rand) core.LatencySample {
 	prompt := Synthesize(r.Spec.InputTokens, fmt.Sprintf("%08x", rnd.Uint32()))
 	smp := core.LatencySample{ModelID: t.ID, Index: idx, Warm: warm, At: time.Now(), InputTokens: apiclient.EstimateTokens(prompt)}
-	pctx, cancel := context.WithTimeout(ctx, r.Spec.Timeout)
+	wctx, release := r.Skipper.Watch(ctx, r.Stage, t.ID, idx)
+	defer release()
+	if r.Report != nil {
+		r.Report(core.Event{Kind: core.EventStart, Stage: r.Stage, Round: idx, Attempt: &core.Attempt{ModelID: t.ID, Round: idx, At: smp.At}})
+	}
+	pctx, cancel := context.WithTimeout(wctx, r.Spec.Timeout)
 	defer cancel()
 	req := apiclient.ChatRequest{Model: t.ID, Messages: []apiclient.Message{{Role: "user", Content: prompt}}, MaxTokens: r.Spec.OutputTokens, Temperature: r.Spec.Temperature}
 	res := r.Client.ChatStream(pctx, req, apiclient.StreamOptions{StallTimeout: r.Spec.StallTimeout})
+	if r.Skipper.IsSkipped(t.ID) {
+		smp.Reason, smp.Message = classify.ReasonSkipped, "skipped by user"
+		return smp
+	}
 	smp.ServedModel = res.Model
 	if res.Usage != nil && res.Usage.PromptTokens > 0 {
 		smp.InputTokens = res.Usage.PromptTokens
@@ -301,7 +315,7 @@ func Summarize(samples []core.LatencySample) []ModelStats {
 		}
 		by[s.ModelID] = append(by[s.ModelID], s)
 	}
-	var out []ModelStats
+	out := []ModelStats{}
 	for _, id := range order {
 		ss := by[id]
 		ms := ModelStats{ModelID: id, Samples: len(ss), Reasons: map[string]int{}, TokensExact: true}

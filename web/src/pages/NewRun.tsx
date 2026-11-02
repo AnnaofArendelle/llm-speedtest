@@ -39,6 +39,8 @@ import type { SuiteSpec } from '@/api/types';
 import { PageHeader } from '@/components/PageHeader';
 import { Section } from '@/components/Section';
 import { CheckResultView } from './Endpoints';
+import { useNotify } from '@/components/notifyContext';
+import { arr } from '@/lib/safe';
 
 const PROFILES = ['quick', 'standard', 'deep'] as const;
 const KINDS = ['suite', 'scan', 'latency', 'capability', 'quality', 'load'] as const;
@@ -68,6 +70,7 @@ export default function NewRun() {
   const checkAdhoc = useCheckAdhoc();
   const discoverAdhoc = useDiscoverAdhoc();
   const discoverStored = useDiscoverEndpoint();
+  const { notify } = useNotify();
 
   const [endpointId, setEndpointId] = useState(params.get('endpoint') ?? '');
   const [inline, setInline] = useState(false);
@@ -168,7 +171,12 @@ export default function NewRun() {
     } else {
       body.endpoint_id = endpointId;
     }
-    start.mutate(body, { onSuccess: (r) => void navigate(`/runs/${r.id}`) });
+    start.mutate(body, {
+      onSuccess: (r) => {
+        notify(t('newRun.started'), 'success');
+        void navigate(`/runs/${r.id}`);
+      },
+    });
   };
 
   const preview = () => {
@@ -430,7 +438,7 @@ export default function NewRun() {
                       {t('newRun.previewResult', {
                         total: previewResult.total,
                         filtered: previewResult.filtered,
-                        providers: previewResult.providers.length,
+                        providers: arr(previewResult.providers).length,
                         families: previewResult.families,
                       })}
                     </Typography>
@@ -439,15 +447,17 @@ export default function NewRun() {
                 </Stack>
                 {previewResult && (
                   <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-                    {previewResult.providers.slice(0, 40).map((p) => (
-                      <Chip key={p.key} size="small" variant="outlined" label={`${p.name} · ${p.models}`} />
-                    ))}
+                    {arr(previewResult.providers)
+                      .slice(0, 40)
+                      .map((p) => (
+                        <Chip key={p.key} size="small" variant="outlined" label={`${p.name} · ${p.models}`} />
+                      ))}
                   </Stack>
                 )}
               </Stack>
             </Section>
           )}
-          <Accordion disableGutters sx={{ borderRadius: 5, '&:before': { display: 'none' }, overflow: 'hidden' }}>
+          <Accordion disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 {t('newRun.advanced')}

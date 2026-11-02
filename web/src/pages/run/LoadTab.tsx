@@ -1,16 +1,18 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useLoad } from '@/api/hooks';
 import type { LoadLevel } from '@/api/types';
 import { EmptyState } from '@/components/EmptyState';
+import { LoadingBlock } from '@/components/LoadingBlock';
 import { Section } from '@/components/Section';
 import { KpiCard } from '@/components/KpiCard';
 import { ScoreBar } from '@/components/badges';
 import { useTokens } from '@/lib/tokens';
 import { LoadCurve } from '@/charts/LoadCurve';
 import { fmtSeconds } from '@/lib/format';
-import { gridDefaults, gridLocale, gridSx } from '@/lib/grid';
+import { gridDefaults, gridLocale, gridSxStatic } from '@/lib/grid';
 import type { TabProps } from './types';
 
 export default function LoadTab({ runId }: TabProps) {
@@ -104,6 +106,7 @@ export default function LoadTab({ runId }: TabProps) {
       ),
     },
   ];
+  if (q.isLoading) return <LoadingBlock rows={3} />;
   if (q.error) return <EmptyState title={t('common.empty')} description={String(q.error)} />;
   if (q.isSuccess && levels.length === 0) return <EmptyState title={t('common.empty')} />;
   return (
@@ -127,7 +130,7 @@ export default function LoadTab({ runId }: TabProps) {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
@@ -142,7 +145,7 @@ export default function LoadTab({ runId }: TabProps) {
           localeText={gridLocale(i18n.language)}
           autoHeight
           hideFooter
-          sx={{ ...gridSx, '& .MuiDataGrid-row:hover': { cursor: 'default' } }}
+          sx={gridSxStatic}
         />
       </Box>
     </Stack>
