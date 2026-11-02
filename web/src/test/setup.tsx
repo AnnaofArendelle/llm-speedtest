@@ -17,6 +17,11 @@ Object.assign(globalThis, {
   EventSource: FakeEventSource,
 });
 
+// framer-motion drives transforms through the Web Animations API when Element.animate exists;
+// happy-dom implements it, and cancelling those animations on unmount rejects their `finished`
+// promises with AbortError (reported by vitest as unhandled errors). Force the JS fallback.
+Object.defineProperty(Element.prototype, 'animate', { value: undefined, configurable: true, writable: true });
+
 // ECharts needs a real canvas; render a placeholder that exposes the option for assertions.
 vi.mock('@/charts/EChart', () => ({
   EChart: ({ option, height }: { option: unknown; height?: number | string }) => (

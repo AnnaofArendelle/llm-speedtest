@@ -3,6 +3,7 @@ import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createMemoryRouter, RouterProvider, type RouteObject } from 'react-router';
+import { MotionConfig } from 'framer-motion';
 import i18n from '@/app/i18n';
 import { ThemeModeProvider } from '@/app/mode';
 import { buildTheme } from '@/app/theme';
@@ -22,7 +23,7 @@ export function Providers({ children, queryClient }: { children: ReactNode; quer
       <ThemeModeProvider>
         <ThemeProvider theme={buildTheme('light')}>
           <CssBaseline />
-          {children}
+          <MotionConfig reducedMotion="always">{children}</MotionConfig>
         </ThemeProvider>
       </ThemeModeProvider>
     </QueryClientProvider>
