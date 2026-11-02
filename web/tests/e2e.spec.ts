@@ -104,7 +104,8 @@ test('a live scan shows progress and a hanging model can be skipped', async ({ p
     const row = page.getByTestId('inflight-row').filter({ hasText: 'beta/hang' });
     await expect(row).toBeVisible({ timeout: 30_000 });
     await row.getByRole('button', { name: 'Skip beta/hang' }).click();
-    await expect(page.getByText('Skipped beta/hang')).toBeVisible({ timeout: 10_000 });
+    // The toast and the progress-card log line both mention the model; assert on the toast.
+    await expect(page.getByRole('alert').filter({ hasText: 'Skipped beta/hang' })).toBeVisible({ timeout: 10_000 });
 
     await expect(page.getByText('Done', { exact: true }).first()).toBeVisible({ timeout: 60_000 });
     await page.waitForLoadState('networkidle');
