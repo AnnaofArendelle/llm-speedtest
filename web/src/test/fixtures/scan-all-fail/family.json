@@ -1,0 +1,59 @@
+{
+  "family": {
+    "key": "gone||",
+    "display": "gone",
+    "member_ids": [
+      "x/gone"
+    ],
+    "n": 1,
+    "ok": 0,
+    "providers": {
+      "dead": 1
+    },
+    "ok_providers": {},
+    "n_prov_ok": 0,
+    "n_prov_stable": 0,
+    "attempts": 0,
+    "successes": 0,
+    "rate": 0,
+    "min_s": 0,
+    "median_s": 0,
+    "max_s": 0,
+    "stable_ids": [],
+    "score": 0,
+    "s_stability": 0,
+    "s_breadth": 0,
+    "s_speed": 0,
+    "reasons": {
+      "model_unavailable": 1
+    },
+    "sources": {
+      "rule": 1
+    }
+  },
+  "members": [
+    {
+      "id": "x/gone",
+      "owned_by": "x",
+      "upstream": "gone",
+      "provider_key": "dead",
+      "provider_name": "dead",
+      "family_key": "gone||",
+      "family_canon": "gone",
+      "family_source": "rule",
+      "status": "fail",
+      "attempts": 1,
+      "ok": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "jitter": 0,
+      "reason": "model_unavailable",
+      "first_reason": "model_unavailable",
+      "http": 404,
+      "message": "The model 'gone' does not exist",
+      "fail_latency_s": 0.001038585
+    }
+  ]
+}

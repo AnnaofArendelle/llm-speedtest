@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import {
   Box,
   Button,
@@ -181,7 +182,7 @@ export default function Runs() {
         <Box
           sx={{
             bgcolor: 'background.paper',
-            borderRadius: 5,
+            borderRadius: radius.card,
             border: '1px solid',
             borderColor: 'divider',
             overflow: 'hidden',

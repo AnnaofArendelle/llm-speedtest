@@ -177,6 +177,8 @@ type Runner struct {
 	Prior []core.Attempt
 	// Now is overridable for tests.
 	Now func() time.Time
+	// Skipper (optional) lets users skip models while the run is in progress.
+	Skipper *core.Skipper
 
 	mu        sync.Mutex
 	latest    map[string]core.Attempt
@@ -308,7 +310,7 @@ func (r *Runner) runRound(ctx context.Context, round, totalRounds int, kind stri
 	// Skip targets already recorded for this round (resume).
 	var todo []Target
 	for _, t := range list {
-		if r.doneSet[round][t.ID] {
+		if r.doneSet[round][t.ID] || r.Skipper.IsSkipped(t.ID) {
 			rs.Skipped++
 			continue
 		}
@@ -467,14 +469,27 @@ func (r *Runner) noteOutcome(t Target, a core.Attempt) {
 
 // probe sends one minimal chat completion and classifies the result.
 func (r *Runner) probe(ctx context.Context, t Target, round int, timeout time.Duration) core.Attempt {
-	pctx, cancel := context.WithTimeout(ctx, timeout)
+	wctx, release := r.Skipper.Watch(ctx, r.Stage, t.ID, round)
+	defer release()
+	r.emit(core.Event{Kind: core.EventStart, Stage: r.Stage, Round: round, Attempt: &core.Attempt{ModelID: t.ID, Round: round, At: r.Now()}})
+	pctx, cancel := context.WithTimeout(wctx, timeout)
 	defer cancel()
 	res := r.Client.Chat(pctx, apiclient.ChatRequest{
 		Model:     t.ID,
 		Messages:  []apiclient.Message{{Role: "user", Content: r.Spec.Prompt}},
 		MaxTokens: r.Spec.MaxTokens,
 	})
-	return AttemptFrom(res, t, round, r.Now())
+	a := AttemptFrom(res, t, round, r.Now())
+	if r.Skipper.IsSkipped(t.ID) {
+		MarkSkipped(&a)
+	}
+	return a
+}
+
+// MarkSkipped rewrites an attempt whose request was cancelled by the user.
+func MarkSkipped(a *core.Attempt) {
+	a.OK, a.HTTP, a.Inner = false, 0, 0
+	a.Class, a.Reason, a.Message = classify.ReasonSkipped, classify.ReasonSkipped, "skipped by user"
 }
 
 // AttemptFrom converts a chat result into an attempt record.

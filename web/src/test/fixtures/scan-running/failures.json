@@ -1,0 +1,63 @@
+{
+  "groups": [
+    {
+      "reason": "untested",
+      "info": {
+        "code": "untested",
+        "name": "未测试",
+        "name_en": "Not tested",
+        "description": "没有任何测试记录。",
+        "description_en": "No attempts recorded.",
+        "fix": "",
+        "fix_en": "",
+        "provider_level": false,
+        "transient": false
+      },
+      "count": 2,
+      "by_provider": {
+        "a": [
+          {
+            "id": "a/slow",
+            "owned_by": "a",
+            "upstream": "slow",
+            "provider_key": "a",
+            "provider_name": "a",
+            "family_key": "slow||",
+            "family_canon": "slow",
+            "family_source": "rule",
+            "status": "untested",
+            "attempts": 0,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "untested"
+          }
+        ],
+        "b": [
+          {
+            "id": "b/missing",
+            "owned_by": "b",
+            "upstream": "missing",
+            "provider_key": "b",
+            "provider_name": "b",
+            "family_key": "missing||",
+            "family_canon": "missing",
+            "family_source": "rule",
+            "status": "untested",
+            "attempts": 0,
+            "ok": 0,
+            "rate": 0,
+            "min_s": 0,
+            "median_s": 0,
+            "max_s": 0,
+            "jitter": 0,
+            "reason": "untested"
+          }
+        ]
+      }
+    }
+  ]
+}

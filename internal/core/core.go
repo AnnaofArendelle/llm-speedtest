@@ -121,6 +121,7 @@ type QualityResult struct {
 
 // EventKind enumerates progress events.
 const (
+	EventStart    = "start" // a request for one model began (Attempt carries ModelID/Round)
 	EventRound    = "round"
 	EventProgress = "progress"
 	EventAttempt  = "attempt"

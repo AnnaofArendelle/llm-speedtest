@@ -22,9 +22,10 @@ import { Section } from '@/components/Section';
 import { EmptyState } from '@/components/EmptyState';
 import { LatencyChip, ReasonChip, ScoreBar, TierBadge } from '@/components/badges';
 import { useTokens } from '@/lib/tokens';
-import { tierColor } from '@/app/theme';
+import { tierColor, radius } from '@/app/theme';
 import { fmtSeconds } from '@/lib/format';
 import { gridDefaults, gridLocale, gridSx } from '@/lib/grid';
+import { entries, keys, topEntries } from '@/lib/safe';
 import type { TabProps } from './types';
 
 export function RankingTab({ runId, onFamily, onModel, order }: TabProps & { order: 'composite' | 'stability' }) {
@@ -112,18 +113,14 @@ export function RankingTab({ runId, onFamily, onModel, order }: TabProps & { ord
       renderCell: (p) => (
         <Stack direction="row" spacing={0.5} sx={{ overflow: 'hidden' }}>
           <span className="mono">{p.row.n_prov_ok}</span>
-          {Object.entries(p.row.ok_providers)
+          {entries(p.row.ok_providers)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3)
             .map(([name]) => (
               <Chip key={name} size="small" label={name} variant="outlined" sx={{ height: 20, fontSize: 11 }} />
             ))}
-          {Object.keys(p.row.ok_providers).length > 3 && (
-            <Chip
-              size="small"
-              label={`+${Object.keys(p.row.ok_providers).length - 3}`}
-              sx={{ height: 20, fontSize: 11 }}
-            />
+          {keys(p.row.ok_providers).length > 3 && (
+            <Chip size="small" label={`+${keys(p.row.ok_providers).length - 3}`} sx={{ height: 20, fontSize: 11 }} />
           )}
         </Stack>
       ),
@@ -171,7 +168,7 @@ export function RankingTab({ runId, onFamily, onModel, order }: TabProps & { ord
       width: 200,
       sortable: false,
       renderCell: (p) => {
-        const top = Object.entries(p.row.reasons).sort((a, b) => b[1] - a[1]);
+        const top = topEntries(p.row.reasons);
         if (!top.length) return <span>–</span>;
         return (
           <Stack direction="row" spacing={0.5} alignItems="center">
@@ -197,7 +194,7 @@ export function RankingTab({ runId, onFamily, onModel, order }: TabProps & { ord
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
@@ -218,7 +215,7 @@ export function RankingTab({ runId, onFamily, onModel, order }: TabProps & { ord
         />
       </Box>
       {order === 'composite' && unavailable.length > 0 && (
-        <Accordion disableGutters sx={{ borderRadius: 5, '&:before': { display: 'none' }, overflow: 'hidden' }}>
+        <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreRounded />}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               {t('run.ranking.unavailable')} ({unavailable.length})
@@ -242,13 +239,13 @@ export function RankingTab({ runId, onFamily, onModel, order }: TabProps & { ord
                         <TableCell sx={{ fontWeight: 600 }}>{f.display}</TableCell>
                         <TableCell className="mono">{f.n}</TableCell>
                         <TableCell>
-                          {Object.entries(f.providers)
+                          {entries(f.providers)
                             .map(([p, n]) => `${p} (${n})`)
                             .join(', ')}
                         </TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                            {Object.entries(f.reasons)
+                            {entries(f.reasons)
                               .sort((a, b) => b[1] - a[1])
                               .slice(0, 3)
                               .map(([r, n]) => (

@@ -5,6 +5,7 @@ import { useSummary } from '@/api/hooks';
 import { KpiCard } from '@/components/KpiCard';
 import { Section } from '@/components/Section';
 import { EmptyState } from '@/components/EmptyState';
+import { LoadingBlock } from '@/components/LoadingBlock';
 import { LatencyChip, ProviderChip, TierBadge } from '@/components/badges';
 import { useTokens } from '@/lib/tokens';
 import { LatencyHistogram } from '@/charts/LatencyHistogram';
@@ -12,6 +13,7 @@ import { Donut } from '@/charts/Donut';
 import { FamilyBars } from '@/charts/FamilyBars';
 import { fmtPct, fmtSeconds } from '@/lib/format';
 import { useReasonLookup } from '@/lib/reasons';
+import { arr } from '@/lib/safe';
 import type { TabProps } from './types';
 
 export function OverviewTab({ runId, onModel, onFamily, goTab }: TabProps) {
@@ -29,8 +31,18 @@ export function OverviewTab({ runId, onModel, onFamily, goTab }: TabProps) {
     if (rest > 0) top.push({ key: '', name: t('common.more'), value: rest });
     return top;
   }, [s, lookup, t]);
+  if (q.isLoading) return <LoadingBlock rows={3} />;
   if (q.error) return <EmptyState title={t('run.notScan')} description={String(q.error)} />;
-  if (!doc || !s || !doc.scoring) return null;
+  if (!doc) return null;
+  if (!s || (doc.partial && s.models === 0)) {
+    return (
+      <EmptyState
+        title={t(doc.partial ? 'run.partial.title' : 'run.notScan')}
+        description={doc.partial ? t('run.partial.description') : undefined}
+      />
+    );
+  }
+  const scoring = doc.scoring ?? { w_stability: 0.4, w_breadth: 0.3, w_speed: 0.3, speed_lo_s: 0.5, speed_hi_s: 30 };
   const tierColors = { A: tk.tierA, B: tk.tierB, C: tk.tierC } as const;
   return (
     <Stack spacing={2}>
@@ -102,12 +114,12 @@ export function OverviewTab({ runId, onModel, onFamily, goTab }: TabProps) {
         <Section
           title={t('run.overview.topFamilies')}
           subtitle={t('run.ranking.intro', {
-            ws: doc.scoring.w_stability,
-            wb: doc.scoring.w_breadth,
-            wsp: doc.scoring.w_speed,
+            ws: scoring.w_stability,
+            wb: scoring.w_breadth,
+            wsp: scoring.w_speed,
           })}
         >
-          <FamilyBars families={doc.top_families} onPick={onFamily} />
+          <FamilyBars families={arr(doc.top_families)} onPick={onFamily} />
         </Section>
         <Section title={t('run.overview.topModels')} noPad>
           <Box sx={{ overflowX: 'auto' }}>
@@ -125,7 +137,7 @@ export function OverviewTab({ runId, onModel, onFamily, goTab }: TabProps) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {doc.top_models.map((m, i) => (
+                {arr(doc.top_models).map((m, i) => (
                   <TableRow key={m.id} hover sx={{ cursor: 'pointer' }} onClick={() => onModel(m.id)}>
                     <TableCell className="mono">{i + 1}</TableCell>
                     <TableCell

@@ -34,8 +34,13 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-coverage
+          path: web/coverage/lcov.info
+          retention-days: 7
       - uses: actions/upload-artifact@v7
         with:
           name: web-dist
@@ -126,6 +131,50 @@ jobs:
             dist/*.zip
             dist/checksums.txt
             build/llm-speedtest-skill.zip
+          retention-days: 7
+
+  e2e:
+    name: End-to-end (Playwright against serve --demo)
+    needs: web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dist
+          path: web/dist
+      - name: Build the server with the embedded UI
+        run: go build -trimpath -o bin/llm-speedtest ./cmd/llm-speedtest
+      - run: npm ci --no-audit --no-fund
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - name: Start the demo server
+        run: |
+          ./bin/llm-speedtest serve --demo --listen 127.0.0.1:8790 --data-dir "$RUNNER_TEMP/lst" > "$RUNNER_TEMP/serve.log" 2>&1 &
+          for _ in $(seq 1 60); do curl -sf http://127.0.0.1:8790/healthz >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:8790/healthz
+      - run: npm run e2e
+        working-directory: web
+        env:
+          LST_BASE_URL: http://127.0.0.1:8790
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-artifacts
+          path: |
+            web/playwright-report
+            web/test-results
+            ${{ runner.temp }}/serve.log
           retention-days: 7
 
   vuln:

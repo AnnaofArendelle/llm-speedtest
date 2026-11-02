@@ -1,6 +1,7 @@
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useQuality } from '@/api/hooks';
 import type { QualityScore } from '@/api/types';
 import { EmptyState } from '@/components/EmptyState';
@@ -113,7 +114,7 @@ export default function QualityTab({ runId, onModel }: TabProps) {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',

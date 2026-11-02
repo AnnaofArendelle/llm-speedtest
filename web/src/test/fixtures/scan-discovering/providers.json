@@ -1,0 +1,6 @@
+{
+  "field": "endpoint",
+  "providers": [],
+  "rationale": "no field discriminates between models; treating the endpoint as a single provider",
+  "suggestions": null
+}

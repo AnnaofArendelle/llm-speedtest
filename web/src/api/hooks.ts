@@ -9,11 +9,13 @@ import type {
   Endpoint,
   FailureGroup,
   FamilyStat,
+  InflightItem,
   LatencyModelStats,
   LatencySample,
   LoadLevel,
   ModelStat,
   ProbeInfo,
+  Profile,
   ProviderStat,
   QualityScore,
   ReasonInfo,
@@ -195,7 +197,14 @@ export function useRuns(kind?: string, limit = 50) {
 export function useRun(id: string | undefined) {
   return useQuery({
     queryKey: keys.run(id ?? ''),
-    queryFn: () => api<{ run: Run; children: Run[]; running: boolean; latest: RunEvent | null }>(`/api/runs/${id}`),
+    queryFn: () =>
+      api<{
+        run: Run;
+        children: Run[] | null;
+        running: boolean;
+        latest: RunEvent | null;
+        inflight: InflightItem[] | null;
+      }>(`/api/runs/${id}`),
     enabled: !!id,
     refetchInterval: (q) => (q.state.data?.running ? 3000 : false),
   });
@@ -279,6 +288,33 @@ export function useModel(id: string | undefined, model: string | undefined) {
     queryFn: () =>
       api<{ model: ModelStat; history: Attempt[] | null }>(`/api/runs/${id}/models/${encodePath(model ?? '')}`),
     enabled: !!id && !!model,
+  });
+}
+export function useModelProfile(id: string | undefined, model: string | undefined) {
+  return useQuery({
+    queryKey: ['run', id ?? '', 'profile', 'model', model ?? ''],
+    queryFn: () => api<Profile>(`/api/runs/${id}/profile/model/${encodePath(model ?? '')}`),
+    enabled: !!id && !!model,
+    retry: false,
+  });
+}
+export function useFamilyProfile(id: string | undefined, key: string | undefined) {
+  return useQuery({
+    queryKey: ['run', id ?? '', 'profile', 'family', key ?? ''],
+    queryFn: () => api<Profile>(`/api/runs/${id}/profile/family/${encodeURIComponent(key ?? '')}`),
+    enabled: !!id && !!key,
+    retry: false,
+  });
+}
+export function useSkipModel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { runId: string; model?: string; all?: boolean }) =>
+      api<{ skipped: string[] | null }>(`/api/runs/${input.runId}/skip`, {
+        method: 'POST',
+        json: input.all ? { all: true } : { model: input.model },
+      }),
+    onSuccess: (_d, v) => void qc.invalidateQueries({ queryKey: keys.run(v.runId) }),
   });
 }
 export function useFailures(id: string | undefined, enabled = true) {

@@ -1,0 +1,227 @@
+{
+  "families": [],
+  "families_by_stability": [],
+  "meta": {
+    "dialect": "generic",
+    "endpoint": "http://127.0.0.1:36631/v1",
+    "finished": "2026-11-02T13:32:27.043271742Z",
+    "generated": "2026-11-02T21:32:27.592742382+08:00",
+    "preset": "quick",
+    "started": "2026-11-02T13:32:27.038509487Z",
+    "title": "",
+    "tool_version": "test"
+  },
+  "models": [
+    {
+      "id": "x/locked",
+      "owned_by": "x",
+      "upstream": "locked",
+      "provider_key": "dead",
+      "provider_name": "dead",
+      "family_key": "locked||",
+      "family_canon": "locked",
+      "family_source": "rule",
+      "status": "fail",
+      "attempts": 1,
+      "ok": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "jitter": 0,
+      "reason": "auth",
+      "first_reason": "auth",
+      "http": 401,
+      "message": "Invalid API key",
+      "fail_latency_s": 0.001128366
+    },
+    {
+      "id": "x/gone",
+      "owned_by": "x",
+      "upstream": "gone",
+      "provider_key": "dead",
+      "provider_name": "dead",
+      "family_key": "gone||",
+      "family_canon": "gone",
+      "family_source": "rule",
+      "status": "fail",
+      "attempts": 1,
+      "ok": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "jitter": 0,
+      "reason": "model_unavailable",
+      "first_reason": "model_unavailable",
+      "http": 404,
+      "message": "The model 'gone' does not exist",
+      "fail_latency_s": 0.001038585
+    }
+  ],
+  "provider_field": "endpoint",
+  "provider_rationale": "no field discriminates between models; treating the endpoint as a single provider",
+  "provider_suggestions": null,
+  "providers": [
+    {
+      "key": "dead",
+      "name": "dead",
+      "models": 2,
+      "families": 2,
+      "ok": 0,
+      "rate": 0,
+      "median_s": 0,
+      "top_reason": "auth",
+      "top_reason_count": 1,
+      "reasons": {
+        "auth": 1,
+        "model_unavailable": 1
+      },
+      "account_level_all": false,
+      "evidence": [
+        {
+          "field": "endpoint",
+          "value": "dead"
+        }
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "scoring": {
+    "w_stability": 0.4,
+    "w_breadth": 0.3,
+    "w_speed": 0.3,
+    "speed_lo_s": 0.5,
+    "speed_hi_s": 30,
+    "model_tier_a": 0.999,
+    "model_tier_b": 0.66,
+    "family_tier_a": 0.95,
+    "family_tier_b": 0.66
+  },
+  "summary": {
+    "models": 2,
+    "ok": 0,
+    "fail": 2,
+    "provider_level_fail": 1,
+    "families": 2,
+    "families_ok": 0,
+    "families_unavailable": 2,
+    "providers": 1,
+    "tier_counts": {},
+    "family_tier_counts": {},
+    "latency_median_s": 0,
+    "latency_p90_s": 0,
+    "latency_min_s": 0,
+    "latency_max_s": 0,
+    "buckets": [
+      {
+        "label": "\u003c 1 s",
+        "lo": 0,
+        "hi": 1,
+        "count": 0
+      },
+      {
+        "label": "1 – 2 s",
+        "lo": 1,
+        "hi": 2,
+        "count": 0
+      },
+      {
+        "label": "2 – 5 s",
+        "lo": 2,
+        "hi": 5,
+        "count": 0
+      },
+      {
+        "label": "5 – 10 s",
+        "lo": 5,
+        "hi": 10,
+        "count": 0
+      },
+      {
+        "label": "10 – 30 s",
+        "lo": 10,
+        "hi": 30,
+        "count": 0
+      },
+      {
+        "label": "≥ 30 s",
+        "lo": 30,
+        "hi": 1000000000,
+        "count": 0
+      }
+    ],
+    "reasons": {
+      "auth": 1,
+      "model_unavailable": 1
+    },
+    "attempts": 2,
+    "rounds": 1
+  },
+  "unavailable_families": [
+    {
+      "key": "gone||",
+      "display": "gone",
+      "member_ids": [
+        "x/gone"
+      ],
+      "n": 1,
+      "ok": 0,
+      "providers": {
+        "dead": 1
+      },
+      "ok_providers": {},
+      "n_prov_ok": 0,
+      "n_prov_stable": 0,
+      "attempts": 0,
+      "successes": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "stable_ids": [],
+      "score": 0,
+      "s_stability": 0,
+      "s_breadth": 0,
+      "s_speed": 0,
+      "reasons": {
+        "model_unavailable": 1
+      },
+      "sources": {
+        "rule": 1
+      }
+    },
+    {
+      "key": "locked||",
+      "display": "locked",
+      "member_ids": [
+        "x/locked"
+      ],
+      "n": 1,
+      "ok": 0,
+      "providers": {
+        "dead": 1
+      },
+      "ok_providers": {},
+      "n_prov_ok": 0,
+      "n_prov_stable": 0,
+      "attempts": 0,
+      "successes": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "stable_ids": [],
+      "score": 0,
+      "s_stability": 0,
+      "s_breadth": 0,
+      "s_speed": 0,
+      "reasons": {
+        "auth": 1
+      },
+      "sources": {
+        "rule": 1
+      }
+    }
+  ]
+}

@@ -21,6 +21,7 @@ coverage.html
 /web/dist/*
 !/web/dist/.gitkeep
 /web/test-results/
+/web/coverage/
 /web/playwright-report/
 /web/.vite/
 

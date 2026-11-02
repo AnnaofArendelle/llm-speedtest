@@ -36,13 +36,14 @@ type Service struct {
 	Bus     *Bus
 	Version string
 
-	mu      sync.Mutex
-	running map[string]context.CancelFunc
+	mu       sync.Mutex
+	running  map[string]context.CancelFunc
+	skippers map[string]*core.Skipper
 }
 
 // New creates a service.
 func New(st *store.Store, version string) *Service {
-	return &Service{Store: st, Bus: NewBus(), Version: version, running: map[string]context.CancelFunc{}}
+	return &Service{Store: st, Bus: NewBus(), Version: version, running: map[string]context.CancelFunc{}, skippers: map[string]*core.Skipper{}}
 }
 
 // Request describes a run to execute.
@@ -238,11 +239,13 @@ func (s *Service) Start(req Request) (string, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	s.mu.Lock()
 	s.running[run.ID] = cancel
+	s.skippers[run.ID] = core.NewSkipper()
 	s.mu.Unlock()
 	go func() {
 		defer func() {
 			s.mu.Lock()
 			delete(s.running, run.ID)
+			delete(s.skippers, run.ID)
 			s.mu.Unlock()
 			cancel()
 		}()
@@ -274,10 +277,12 @@ func (s *Service) RunSyncWithID(ctx context.Context, req Request, onStart func(r
 	ctx, cancel := context.WithCancel(ctx)
 	s.mu.Lock()
 	s.running[run.ID] = cancel
+	s.skippers[run.ID] = core.NewSkipper()
 	s.mu.Unlock()
 	defer func() {
 		s.mu.Lock()
 		delete(s.running, run.ID)
+		delete(s.skippers, run.ID)
 		s.mu.Unlock()
 		cancel()
 	}()
@@ -293,6 +298,55 @@ func (s *Service) Cancel(runID string) bool {
 		cancel()
 	}
 	return ok
+}
+
+// skipperFor returns the skipper of a run, or of its parent suite for child runs.
+func (s *Service) skipperFor(run *store.Run) *core.Skipper {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if sk := s.skippers[run.ID]; sk != nil {
+		return sk
+	}
+	if run.ParentID != "" {
+		return s.skippers[run.ParentID]
+	}
+	return nil
+}
+
+// Skip skips one model of a running run (or every model currently in flight
+// when all is true). It reports false when the run is not in progress.
+func (s *Service) Skip(runID, model string, all bool) ([]string, bool) {
+	s.mu.Lock()
+	sk := s.skippers[runID]
+	s.mu.Unlock()
+	if sk == nil {
+		return nil, false
+	}
+	var ids []string
+	switch {
+	case all:
+		ids = sk.SkipAll()
+	case model != "":
+		sk.Skip(model)
+		ids = []string{model}
+	default:
+		ids = []string{}
+	}
+	if len(ids) > 0 {
+		s.Bus.Publish(runID, core.Event{Kind: core.EventLog, Message: fmt.Sprintf("skipped %s", strings.Join(ids, ", "))})
+	}
+	return ids, true
+}
+
+// Inflight lists the requests currently in progress for a run.
+func (s *Service) Inflight(runID string) []core.InflightItem {
+	s.mu.Lock()
+	sk := s.skippers[runID]
+	s.mu.Unlock()
+	if sk == nil {
+		return []core.InflightItem{}
+	}
+	return sk.Inflight()
 }
 
 // IsRunning reports whether a run is in progress.
@@ -404,7 +458,7 @@ func (s *Service) runScan(ctx context.Context, run *store.Run, req Request, ep c
 	}
 	prior, _ := s.Store.ListAttempts(run.ID)
 	writer := s.Store.AttemptWriter(run.ID)
-	runner := &scan.Runner{Client: cl, Spec: req.Suite.Specs.Scan, Sink: scan.SinkFunc(func(_ context.Context, a core.Attempt) error { return writer.Add(a) }), Report: s.reporter(run.ID), Prior: prior}
+	runner := &scan.Runner{Skipper: s.skipperFor(run), Client: cl, Spec: req.Suite.Specs.Scan, Sink: scan.SinkFunc(func(_ context.Context, a core.Attempt) error { return writer.Add(a) }), Report: s.reporter(run.ID), Prior: prior}
 	sum, runErr := runner.Run(ctx, targets)
 	if ferr := writer.Flush(); ferr != nil && runErr == nil {
 		runErr = ferr
@@ -480,7 +534,7 @@ func (s *Service) runLatency(ctx context.Context, run *store.Run, req Request, e
 		targets = append(targets, latency.Target{ID: m.ID, Provider: m.ProviderKey, Name: modelid.Name(m.ID, m.OwnedBy)})
 	}
 	writer := s.Store.LatencyWriter(run.ID)
-	runner := &latency.Runner{Client: cl, Spec: req.Suite.Specs.Latency, Sink: latency.SinkFunc(func(_ context.Context, smp core.LatencySample) error { return writer.Add(smp) }), Report: s.reporter(run.ID)}
+	runner := &latency.Runner{Skipper: s.skipperFor(run), Client: cl, Spec: req.Suite.Specs.Latency, Sink: latency.SinkFunc(func(_ context.Context, smp core.LatencySample) error { return writer.Add(smp) }), Report: s.reporter(run.ID)}
 	samples, runErr := runner.Run(ctx, targets)
 	if ferr := writer.Flush(); ferr != nil && runErr == nil {
 		runErr = ferr
@@ -550,7 +604,7 @@ func (s *Service) runCapability(ctx context.Context, run *store.Run, req Request
 	}
 	var mu sync.Mutex
 	var buf []core.CapabilityResult
-	runner := &capability.Runner{Client: cl, Spec: req.Suite.Specs.Capability, Sink: capability.SinkFunc(func(_ context.Context, r core.CapabilityResult) error {
+	runner := &capability.Runner{Skipper: s.skipperFor(run), Client: cl, Spec: req.Suite.Specs.Capability, Sink: capability.SinkFunc(func(_ context.Context, r core.CapabilityResult) error {
 		mu.Lock()
 		buf = append(buf, r)
 		n := len(buf)
@@ -608,7 +662,7 @@ func (s *Service) runQuality(ctx context.Context, run *store.Run, req Request, e
 	}
 	var mu sync.Mutex
 	var buf []core.QualityResult
-	runner := &quality.Runner{Client: cl, Spec: req.Suite.Specs.Quality, Set: set, Sink: quality.SinkFunc(func(_ context.Context, r core.QualityResult) error {
+	runner := &quality.Runner{Skipper: s.skipperFor(run), Client: cl, Spec: req.Suite.Specs.Quality, Set: set, Sink: quality.SinkFunc(func(_ context.Context, r core.QualityResult) error {
 		mu.Lock()
 		buf = append(buf, r)
 		var rows []core.QualityResult

@@ -6,6 +6,7 @@ import { ThemeModeProvider } from './mode';
 import { useThemeMode } from './modeContext';
 import { buildTheme } from './theme';
 import { router } from './router';
+import { SnackbarProvider } from '@/components/SnackbarProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 10_000, retry: 1, refetchOnWindowFocus: false } },
@@ -17,7 +18,7 @@ function Themed({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />
-      {children}
+      <SnackbarProvider>{children}</SnackbarProvider>
     </ThemeProvider>
   );
 }

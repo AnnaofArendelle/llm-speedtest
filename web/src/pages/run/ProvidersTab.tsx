@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import { useProviders, useSetProviderOverride } from '@/api/hooks';
 import type { ProviderStat } from '@/api/types';
 import { Section } from '@/components/Section';
@@ -26,7 +27,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { LatencyChip, ProviderChip, ReasonChip, ScoreBar } from '@/components/badges';
 import { useTokens } from '@/lib/tokens';
 import { ProviderBars } from '@/charts/ProviderBars';
-import { gridDefaults, gridLocale, gridSx } from '@/lib/grid';
+import { gridDefaults, gridLocale, gridSxStatic } from '@/lib/grid';
 import type { TabProps } from './types';
 
 export function ProvidersTab({ runId, run, goTab }: TabProps) {
@@ -166,7 +167,7 @@ export function ProvidersTab({ runId, run, goTab }: TabProps) {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          borderRadius: 5,
+          borderRadius: radius.card,
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
@@ -184,16 +185,10 @@ export function ProvidersTab({ runId, run, goTab }: TabProps) {
           loading={q.isLoading}
           localeText={gridLocale(i18n.language)}
           autoHeight
-          sx={{ ...gridSx, '& .MuiDataGrid-row:hover': { cursor: 'default' } }}
+          sx={gridSxStatic}
         />
       </Box>
-      <Dialog
-        open={!!edit}
-        onClose={() => setEdit(null)}
-        fullWidth
-        maxWidth="xs"
-        slotProps={{ paper: { sx: { borderRadius: 5 } } }}
-      >
+      <Dialog open={!!edit} onClose={() => setEdit(null)} fullWidth maxWidth="xs">
         <DialogTitle>
           {t('run.providers.rename')} · <span className="mono">{edit?.p.key}</span>
         </DialogTitle>

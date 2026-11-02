@@ -8,7 +8,7 @@ step() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 step "web: install, lint, format, typecheck, test, build"
-(cd web && npm ci --no-audit --no-fund && npm run lint && npm run format:check && npm run typecheck && npm test && npm run build)
+(cd web && npm ci --no-audit --no-fund && npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build)
 
 step "go: vet"
 go vet ./...

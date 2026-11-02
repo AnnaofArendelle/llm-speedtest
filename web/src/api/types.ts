@@ -86,10 +86,10 @@ export interface ProviderInfo {
 }
 
 export interface DiscoverResult {
-  models: RunModelRow[];
+  models: RunModelRow[] | null;
   total: number;
   filtered: number;
-  providers: ProviderInfo[];
+  providers: ProviderInfo[] | null;
   provider_field: string;
   provider_rationale: string;
   families: number;
@@ -112,14 +112,14 @@ export interface Summary {
   families_ok: number;
   families_unavailable: number;
   providers: number;
-  tier_counts: Record<string, number>;
-  family_tier_counts: Record<string, number>;
+  tier_counts: Record<string, number> | null;
+  family_tier_counts: Record<string, number> | null;
   latency_median_s: number;
   latency_p90_s: number;
   latency_min_s: number;
   latency_max_s: number;
   buckets: Bucket[] | null;
-  reasons: Record<string, number>;
+  reasons: Record<string, number> | null;
   attempts: number;
   rounds: number;
 }
@@ -178,16 +178,18 @@ export interface ModelStat {
   inner?: number;
   message?: string;
   fail_latency_s?: number;
+  /** Attempts cancelled by the user through "skip" (excluded from the statistics). */
+  skipped?: number;
 }
 
 export interface FamilyStat {
   key: string;
   display: string;
-  member_ids: string[];
+  member_ids: string[] | null;
   n: number;
   ok: number;
-  providers: Record<string, number>;
-  ok_providers: Record<string, number>;
+  providers: Record<string, number> | null;
+  ok_providers: Record<string, number> | null;
   n_prov_ok: number;
   n_prov_stable: number;
   attempts: number;
@@ -203,8 +205,8 @@ export interface FamilyStat {
   s_stability: number;
   s_breadth: number;
   s_speed: number;
-  reasons: Record<string, number>;
-  sources: Record<string, number>;
+  reasons: Record<string, number> | null;
+  sources: Record<string, number> | null;
   rank_composite?: number;
   rank_stability?: number;
 }
@@ -219,7 +221,7 @@ export interface ProviderStat {
   median_s: number;
   top_reason?: string;
   top_reason_count?: number;
-  reasons: Record<string, number>;
+  reasons: Record<string, number> | null;
   account_level_all: boolean;
   evidence?: { field: string; value: string }[];
 }
@@ -238,14 +240,19 @@ export interface ReasonInfo {
 
 export interface RunSummaryDoc {
   run: Run;
-  summary: Summary;
-  scoring: Scoring;
-  provider_field: string;
-  provider_rationale: string;
-  provider_suggestions?: { keys: string[]; evidence: string }[];
-  top_families: FamilyStat[];
-  top_models: ModelStat[];
-  providers: ProviderStat[];
+  /** Null while a run is still discovering models or has no stored summary. */
+  summary: Summary | null;
+  scoring?: Scoring;
+  provider_field?: string;
+  provider_rationale?: string;
+  provider_suggestions?: { keys: string[]; evidence: string }[] | null;
+  top_families?: FamilyStat[] | null;
+  top_models?: ModelStat[] | null;
+  providers?: ProviderStat[] | null;
+  /** True while the run is in progress or did not finish; data may be incomplete. */
+  partial?: boolean;
+  status?: string;
+  kind?: string;
 }
 
 export interface Stats {
@@ -316,9 +323,9 @@ export interface LoadLevel {
 
 export interface CapMatrix {
   models: string[] | null;
-  probes: string[];
-  cells: Record<string, Record<string, { status: string; evidence?: string; latency_s?: number }>>;
-  support: Record<string, number>;
+  probes: string[] | null;
+  cells: Record<string, Record<string, { status: string; evidence?: string; latency_s?: number }> | null> | null;
+  support: Record<string, number> | null;
 }
 
 export interface QualityScore {
@@ -327,8 +334,8 @@ export interface QualityScore {
   trials: number;
   trial_scores: number[] | null;
   consistency: number;
-  questions: Record<string, number>;
-  categories: Record<string, number>;
+  questions: Record<string, number> | null;
+  categories: Record<string, number> | null;
   identity?: string;
   errors?: Record<string, number>;
   answered: number;
@@ -364,7 +371,7 @@ export interface FailureGroup {
   reason: string;
   info: ReasonInfo;
   count: number;
-  by_provider: Record<string, ModelStat[]>;
+  by_provider: Record<string, ModelStat[] | null> | null;
 }
 
 export interface CompareDoc {
@@ -372,34 +379,68 @@ export interface CompareDoc {
   b: Run;
   summary_a: Summary;
   summary_b: Summary;
-  counts: Record<string, number>;
-  models: {
-    id: string;
-    provider: string;
-    family: string;
-    status_a: string;
-    status_b: string;
-    tier_a?: string;
-    tier_b?: string;
-    median_a: number;
-    median_b: number;
-    delta_median: number;
-    reason_a?: string;
-    reason_b?: string;
-    change: string;
-  }[];
-  families: {
-    key: string;
-    display: string;
-    score_a: number;
-    score_b: number;
-    rank_a: number;
-    rank_b: number;
-    median_a: number;
-    median_b: number;
-    ok_a: number;
-    ok_b: number;
-  }[];
+  counts: Record<string, number> | null;
+  models:
+    | {
+        id: string;
+        provider: string;
+        family: string;
+        status_a: string;
+        status_b: string;
+        tier_a?: string;
+        tier_b?: string;
+        median_a: number;
+        median_b: number;
+        delta_median: number;
+        reason_a?: string;
+        reason_b?: string;
+        change: string;
+      }[]
+    | null;
+  families:
+    | {
+        key: string;
+        display: string;
+        score_a: number;
+        score_b: number;
+        rank_a: number;
+        rank_b: number;
+        median_a: number;
+        median_b: number;
+        ok_a: number;
+        ok_b: number;
+      }[]
+    | null;
+}
+
+export interface ProfileDimension {
+  key: string;
+  label_zh: string;
+  label_en: string;
+  score: number;
+  covered: boolean;
+  detail: string;
+}
+
+export interface Profile {
+  id: string;
+  kind: 'model' | 'family';
+  display: string;
+  dimensions: ProfileDimension[] | null;
+  coverage: Record<string, boolean> | null;
+  measured: Record<string, number> | null;
+  members: number;
+}
+
+export interface InflightItem {
+  id: string;
+  stage: string;
+  round?: number;
+  since: string;
+}
+
+export interface SkipResponse {
+  skipped: string[] | null;
 }
 
 export interface SuiteSpec {

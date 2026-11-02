@@ -188,6 +188,8 @@ type Runner struct {
 	Sink   Sink
 	Report func(core.Event)
 	Stage  string
+	// Skipper (optional) lets users skip models while the run is in progress.
+	Skipper *core.Skipper
 }
 
 // IdentityQuestionID is the id used for the unscored identity prompt.
@@ -242,6 +244,8 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.QualityResul
 				return err
 			}
 			defer global.Release(1)
+			tctx, release := r.Skipper.Watch(gctx, r.Stage, t.ID, 0)
+			defer release()
 			record := func(res core.QualityResult) error {
 				if r.Sink != nil {
 					if err := r.Sink.Quality(gctx, res); err != nil {
@@ -257,9 +261,10 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.QualityResul
 				return nil
 			}
 			ask := func(prompt string, maxTokens int) (apiclient.ChatResult, time.Duration) {
-				pctx, cancel := context.WithTimeout(gctx, r.Spec.Timeout)
+				pctx, cancel := context.WithTimeout(tctx, r.Spec.Timeout)
 				defer cancel()
 				start := time.Now()
+				emit(core.Event{Kind: core.EventStart, Stage: r.Stage, Attempt: &core.Attempt{ModelID: t.ID, At: start}})
 				res := r.Client.Chat(pctx, apiclient.ChatRequest{Model: t.ID, Messages: []apiclient.Message{{Role: "user", Content: prompt}}, MaxTokens: maxTokens, Temperature: &zero})
 				return res, time.Since(start)
 			}
@@ -268,6 +273,9 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.QualityResul
 				res, lat := ask(r.Set.IdentityPrompt, 32)
 				if gctx.Err() != nil {
 					return gctx.Err()
+				}
+				if r.Skipper.IsSkipped(t.ID) {
+					return record(core.QualityResult{ModelID: t.ID, QuestionID: IdentityQuestionID, Trial: 1, Latency: lat, Error: classify.ReasonSkipped})
 				}
 				qr := core.QualityResult{ModelID: t.ID, QuestionID: IdentityQuestionID, Trial: 1, Latency: lat, Output: strings.TrimSpace(res.Content)}
 				if !res.OK() {
@@ -290,6 +298,9 @@ func (r *Runner) Run(ctx context.Context, targets []Target) ([]core.QualityResul
 					res, lat := ask(q.Prompt, r.Spec.MaxTokens)
 					if gctx.Err() != nil {
 						return gctx.Err()
+					}
+					if r.Skipper.IsSkipped(t.ID) {
+						return record(core.QualityResult{ModelID: t.ID, QuestionID: q.ID, Trial: trial, Latency: lat, Error: classify.ReasonSkipped})
 					}
 					qr := core.QualityResult{ModelID: t.ID, QuestionID: q.ID, Trial: trial, Latency: lat, Output: trunc(res.Content, 200)}
 					if res.OK() {
@@ -370,7 +381,7 @@ func Summarize(results []core.QualityResult, set *Set) []ModelScore {
 		}
 		by[r.ModelID] = append(by[r.ModelID], r)
 	}
-	var out []ModelScore
+	out := []ModelScore{}
 	for _, id := range order {
 		rs := by[id]
 		ms := ModelScore{ModelID: id, Questions: map[string]float64{}, Categories: map[string]float64{}, Errors: map[string]int{}}

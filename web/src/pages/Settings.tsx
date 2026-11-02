@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { radius } from '@/app/theme';
 import {
   Box,
   Button,
@@ -90,6 +91,7 @@ export default function Settings() {
               onChange={(e) => setToken(e.target.value)}
               fullWidth
               autoComplete="off"
+              slotProps={{ htmlInput: { 'aria-label': t('settings.token') } }}
             />
             <Button variant="contained" disableElevation onClick={saveToken}>
               {t('common.save')}
@@ -121,7 +123,14 @@ export default function Settings() {
           <Box
             component="pre"
             className="mono"
-            sx={{ m: 0, p: 2, borderRadius: 3, bgcolor: 'background.default', fontSize: 13, overflowX: 'auto' }}
+            sx={{
+              m: 0,
+              p: 2,
+              borderRadius: radius.control,
+              bgcolor: 'background.default',
+              fontSize: 13,
+              overflowX: 'auto',
+            }}
           >
             {`llm-speedtest skill install --target claude   # Claude Code / claude.ai skills
 llm-speedtest skill install --target codex    # Codex CLI

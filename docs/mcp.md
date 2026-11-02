@@ -23,7 +23,7 @@ and vice versa.
 |---|---|
 | `list_endpoints`, `upsert_endpoint`, `check_endpoint`, `discover_models` | endpoint management and preview |
 | `start_run` | start `suite` / `scan` / `latency` / `load` / `capability` / `quality` (load requires `confirm: true`) |
-| `get_run`, `wait_run`, `cancel_run`, `list_runs` | lifecycle |
+| `get_run`, `wait_run`, `cancel_run`, `skip_model`, `list_runs` | lifecycle (`skip_model` cancels one model's in-flight request — or all with `all: true` — and excludes it from the rest of the run) |
 | `get_ranking`, `get_models`, `get_failures`, `get_providers` | scan results |
 | `get_latency`, `get_load`, `get_capabilities`, `get_quality` | stage results |
 | `export_report` | Markdown report (zh/en) |

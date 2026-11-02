@@ -1,0 +1,69 @@
+{
+  "families": [],
+  "unavailable": [
+    {
+      "key": "gone||",
+      "display": "gone",
+      "member_ids": [
+        "x/gone"
+      ],
+      "n": 1,
+      "ok": 0,
+      "providers": {
+        "dead": 1
+      },
+      "ok_providers": {},
+      "n_prov_ok": 0,
+      "n_prov_stable": 0,
+      "attempts": 0,
+      "successes": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "stable_ids": [],
+      "score": 0,
+      "s_stability": 0,
+      "s_breadth": 0,
+      "s_speed": 0,
+      "reasons": {
+        "model_unavailable": 1
+      },
+      "sources": {
+        "rule": 1
+      }
+    },
+    {
+      "key": "locked||",
+      "display": "locked",
+      "member_ids": [
+        "x/locked"
+      ],
+      "n": 1,
+      "ok": 0,
+      "providers": {
+        "dead": 1
+      },
+      "ok_providers": {},
+      "n_prov_ok": 0,
+      "n_prov_stable": 0,
+      "attempts": 0,
+      "successes": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "stable_ids": [],
+      "score": 0,
+      "s_stability": 0,
+      "s_breadth": 0,
+      "s_speed": 0,
+      "reasons": {
+        "auth": 1
+      },
+      "sources": {
+        "rule": 1
+      }
+    }
+  ]
+}

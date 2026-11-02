@@ -201,6 +201,7 @@ export const en: Dict = {
     preview: 'Preview models',
     previewResult: '{{total}} models, {{filtered}} after filtering · {{providers}} providers · {{families}} families',
     note: 'Note',
+    started: 'Speed test started',
   },
   runs: {
     title: 'Runs',
@@ -271,6 +272,7 @@ export const en: Dict = {
       context: 'Context',
       flaky: 'Failed {{list}}, succeeded on retry',
       familySource: 'Grouping evidence',
+      skipped: 'skipped by user ×{{n}}',
     },
     providers: {
       rationale: 'Rationale',
@@ -349,8 +351,25 @@ export const en: Dict = {
       lang: 'Report language',
       preview: 'Preview',
     },
+    live: {
+      inflight: 'Requests in flight',
+      none: 'No request in flight',
+      skip: 'Skip',
+      skipAll: 'Skip all in flight',
+      skipAllConfirm:
+        'Cancel the {{n}} requests currently in flight and leave these models out of the remaining rounds and stages of this run?',
+      skipped: 'Skipped {{model}}',
+      skippedAll: 'Skipped {{n}} models',
+      skipFailed: 'Skip failed: {{error}}',
+      etaPending: 'Estimating remaining time…',
+    },
     cancelConfirm: 'Cancel the run in progress?',
     notScan: 'This run has no availability scan.',
+    partial: {
+      title: 'Scan in progress — nothing to summarise yet',
+      description:
+        'KPIs, distributions and rankings appear once model discovery and the first probing round have completed; see the progress card above for live results.',
+    },
   },
   compare: {
     title: 'Compare runs',
@@ -403,4 +422,24 @@ export const en: Dict = {
       'Run `llm-speedtest skill install --target claude` to install this tool as a skill for AI assistants, or `llm-speedtest mcp` to use it as an MCP server.',
   },
   reasons: { legend: 'Failure categories' },
+  profile: {
+    title: 'Capability matrix',
+    subtitle: 'Each axis is a 0–100 score; grey axes were not covered by this run',
+    coverage: 'Coverage',
+    notCovered: 'Not covered',
+    covered: 'Covered',
+    measured: '{{n}}/{{total}} members measured',
+    dimension: 'Dimension',
+    detail: 'Detail',
+  },
+  errors: {
+    title: 'Something went wrong',
+    titleIn: 'The “{{label}}” section failed',
+    description:
+      'An unexpected error happened while rendering. Retry, reload the page or go back to the run list; if it keeps happening, please open an issue with the details below.',
+    retry: 'Retry',
+    reload: 'Reload page',
+    home: 'Back to runs',
+    details: 'Error details',
+  },
 };

@@ -66,7 +66,8 @@ llm-speedtest grew out of a real audit of a 2 306-model multi-provider gateway a
 | **Load test** | Closed-loop concurrency sweep or open-loop Poisson rate, ramp-up, request/token throughput, error rate, goodput under an SLO | Concurrency → throughput/latency curve |
 | **Capability probes** | streaming, `include_usage`, tools, JSON mode, JSON schema, vision, system prompt, `max_tokens`, `stop`, determinism, reasoning params, long-context tiers, embeddings | Capability matrix |
 | **Quality spot-check** | ~20 deterministic questions (YAML, extensible), repeated trials, consistency, self-reported identity | Score table with category pass rates |
-| **Suite** | scan → latency (top N) → capability → quality → optional load, in one command or one click | Combined run dashboard with live SSE progress |
+| **Suite** | scan → latency (top N) → capability → quality → optional load, in one command or one click | Combined run dashboard with live SSE progress, in-flight list and per-model **skip** |
+| **Capability matrix** | Eight-axis radar per model and per family (stability, speed, breadth, TTFT, throughput, capabilities, quality, load) with stage coverage | Model / family drawers |
 | **Export & compare** | Markdown report with the full detailed structure, JSON (schema-versioned), CSV, run-to-run diff | Export tab, Compare page |
 | **AI skill & MCP** | `SKILL.md` package, MCP server (`llm-speedtest mcp`) with 20 tools, self-installer | — |
 | **Demo mode** | `serve --demo` seeds an anonymised reference scan so you can explore the UI without an endpoint | — |
@@ -364,7 +365,10 @@ make screenshots               # regenerate docs/screenshots from `serve --demo`
 ```
 
 CI runs on Linux, macOS and Windows with the race detector, a coverage gate, golangci-lint, govulncheck, CodeQL,
-actionlint, shellcheck and a Docker build. Tags `v*` publish GitHub releases (6 platforms, checksums, skill zip)
+actionlint, shellcheck, a Docker build and a Playwright end-to-end job. The web UI is tested against API fixtures
+recorded from the real server (`make fixtures`): a render matrix mounts every page and tab for every run state
+(discovering, running, failed, all-unavailable, finished suite, single stages), plus interaction, SSE, i18n and
+style-guard tests with coverage thresholds. Tags `v*` publish GitHub releases (6 platforms, checksums, skill zip)
 and a multi-arch image on GHCR. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Roadmap

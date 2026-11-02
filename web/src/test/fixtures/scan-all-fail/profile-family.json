@@ -1,0 +1,82 @@
+{
+  "id": "gone||",
+  "kind": "family",
+  "display": "gone",
+  "dimensions": [
+    {
+      "key": "stability",
+      "label_zh": "稳定性",
+      "label_en": "Stability",
+      "score": 0,
+      "covered": true,
+      "detail": "0/1"
+    },
+    {
+      "key": "speed",
+      "label_zh": "响应速度",
+      "label_en": "Speed",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    },
+    {
+      "key": "breadth",
+      "label_zh": "提供商广度",
+      "label_en": "Breadth",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    },
+    {
+      "key": "ttft",
+      "label_zh": "首 token",
+      "label_en": "TTFT",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    },
+    {
+      "key": "throughput",
+      "label_zh": "解码吞吐",
+      "label_en": "Throughput",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    },
+    {
+      "key": "capability",
+      "label_zh": "能力覆盖",
+      "label_en": "Capabilities",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    },
+    {
+      "key": "quality",
+      "label_zh": "回答质量",
+      "label_en": "Quality",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    },
+    {
+      "key": "load",
+      "label_zh": "负载 Goodput",
+      "label_en": "Load",
+      "score": 0,
+      "covered": false,
+      "detail": ""
+    }
+  ],
+  "coverage": {
+    "capability": false,
+    "latency": false,
+    "load": false,
+    "quality": false,
+    "scan": true
+  },
+  "measured": {
+    "scan": 1
+  },
+  "members": 1
+}

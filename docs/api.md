@@ -58,3 +58,37 @@ The dashboard server (`llm-speedtest serve`, default `http://127.0.0.1:8787`) ex
 | `compare_runs` | `a, b` | diff |
 
 Resources: `speedtest://metrics-glossary`, `speedtest://runs/{id}/summary`. Prompt: `summarize_run(run_id)`.
+
+## Added in 0.2.0
+
+### Skip a model while a run is in progress
+
+```
+POST /api/runs/{id}/skip     {"model": "<id>"}  |  {"all": true}
+→ 200 {"skipped": ["<id>", …]}   409 when the run is not in progress
+```
+
+Skipping cancels the model's in-flight request (the attempt is recorded with reason `skipped`, which is excluded
+from availability statistics) and leaves the model out of the remaining rounds and stages. `GET /api/runs/{id}`
+and the SSE `snapshot` event include `inflight: [{id, stage, round, since}]`; the stream also emits `start` events
+(`attempt.model_id`, `round`) when a request begins.
+
+### Capability profile (radar)
+
+```
+GET /api/runs/{id}/profile/model/{model}
+GET /api/runs/{id}/profile/family/{key}
+→ {"id", "kind": "model|family", "display", "members",
+   "dimensions": [{"key", "label_zh", "label_en", "score": 0-100, "covered": bool, "detail"}],
+   "coverage": {"scan": bool, "latency": bool, "capability": bool, "quality": bool, "load": bool},
+   "measured": {"<stage>": <members measured>}}
+```
+
+Dimensions: `stability`, `speed`, `breadth`, `ttft`, `throughput`, `capability`, `quality`, `load`. A dimension is
+`covered: false` when the run's stages did not measure it; families report the best member per dimension.
+
+### Summary flags
+
+`GET /api/runs/{id}/summary` now returns `partial: true` with `status`/`kind` while the run is in progress or did
+not finish; collection fields (`top_models`, `top_families`, `providers`, `buckets`, `tier_counts`, …) are never
+`null`.

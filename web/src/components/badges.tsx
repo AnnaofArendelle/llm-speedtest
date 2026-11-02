@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Box, Chip, Tooltip, Typography, useTheme } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import { latencyColor, tierColor } from '@/app/theme';
+import { latencyColor, tierColor, radius } from '@/app/theme';
 import { useTokens } from '@/lib/tokens';
 import { fmtSeconds } from '@/lib/format';
 import { useReasonLookup } from '@/lib/reasons';
@@ -177,13 +177,15 @@ export function ScoreBar({
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-      <Box sx={{ width, height: 6, borderRadius: 3, bgcolor: 'action.hover', overflow: 'hidden', flexShrink: 0 }}>
+      <Box
+        sx={{ width, height: 6, borderRadius: radius.pill, bgcolor: 'action.hover', overflow: 'hidden', flexShrink: 0 }}
+      >
         <Box
           sx={{
             width: `${pct}%`,
             height: '100%',
             bgcolor: color ?? 'primary.main',
-            borderRadius: 3,
+            borderRadius: radius.pill,
             transition: 'width .4s ease',
           }}
         />

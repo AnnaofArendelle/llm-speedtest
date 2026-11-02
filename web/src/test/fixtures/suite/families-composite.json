@@ -1,0 +1,114 @@
+{
+  "families": [
+    {
+      "key": "fast||",
+      "display": "fast",
+      "member_ids": [
+        "a/fast"
+      ],
+      "n": 1,
+      "ok": 1,
+      "providers": {
+        "a": 1
+      },
+      "ok_providers": {
+        "a": 1
+      },
+      "n_prov_ok": 1,
+      "n_prov_stable": 1,
+      "attempts": 1,
+      "successes": 1,
+      "rate": 1,
+      "tier": "A",
+      "min_s": 0.010835716,
+      "median_s": 0.010835716,
+      "max_s": 0.010835716,
+      "best_id": "a/fast",
+      "stable_ids": [
+        "a/fast"
+      ],
+      "score": 100,
+      "s_stability": 100,
+      "s_breadth": 100,
+      "s_speed": 100,
+      "reasons": {},
+      "sources": {
+        "rule": 1
+      },
+      "rank_composite": 1,
+      "rank_stability": 1
+    },
+    {
+      "key": "slow||",
+      "display": "slow",
+      "member_ids": [
+        "a/slow"
+      ],
+      "n": 1,
+      "ok": 1,
+      "providers": {
+        "a": 1
+      },
+      "ok_providers": {
+        "a": 1
+      },
+      "n_prov_ok": 1,
+      "n_prov_stable": 1,
+      "attempts": 1,
+      "successes": 1,
+      "rate": 1,
+      "tier": "A",
+      "min_s": 0.041802605,
+      "median_s": 0.041802605,
+      "max_s": 0.041802605,
+      "best_id": "a/slow",
+      "stable_ids": [
+        "a/slow"
+      ],
+      "score": 100,
+      "s_stability": 100,
+      "s_breadth": 100,
+      "s_speed": 100,
+      "reasons": {},
+      "sources": {
+        "rule": 1
+      },
+      "rank_composite": 2,
+      "rank_stability": 2
+    }
+  ],
+  "unavailable": [
+    {
+      "key": "missing||",
+      "display": "missing",
+      "member_ids": [
+        "b/missing"
+      ],
+      "n": 1,
+      "ok": 0,
+      "providers": {
+        "b": 1
+      },
+      "ok_providers": {},
+      "n_prov_ok": 0,
+      "n_prov_stable": 0,
+      "attempts": 0,
+      "successes": 0,
+      "rate": 0,
+      "min_s": 0,
+      "median_s": 0,
+      "max_s": 0,
+      "stable_ids": [],
+      "score": 0,
+      "s_stability": 0,
+      "s_breadth": 0,
+      "s_speed": 0,
+      "reasons": {
+        "model_unavailable": 1
+      },
+      "sources": {
+        "rule": 1
+      }
+    }
+  ]
+}

@@ -10,7 +10,7 @@ export CGO_ENABLED := 0
 # Go packages of this module (excludes stray Go files inside web/node_modules).
 PKGS := $(shell go list ./... | grep -v /web/node_modules/)
 
-.PHONY: all build web web-install test race cover lint vuln fmt tidy snapshot skill screenshots run serve clean help check
+.PHONY: all build web web-install test race cover lint vuln fmt tidy snapshot skill screenshots run serve clean help check fixtures e2e web-test
 
 all: web build ## Build frontend and binary
 
@@ -71,3 +71,12 @@ help: ## Show this help
 
 check: ## Run every CI check locally
 	./scripts/ci-check.sh
+
+web-test: ## Run the web unit tests with coverage
+	cd web && npm run test:coverage
+
+fixtures: ## Regenerate web/src/test/fixtures from the Go API (after changing response shapes)
+	go test ./internal/server -run TestAPIContract -update-fixtures
+
+e2e: build ## Run the Playwright end-to-end suite against a local demo server
+	./scripts/e2e.sh

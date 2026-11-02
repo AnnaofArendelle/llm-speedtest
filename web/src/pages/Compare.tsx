@@ -26,9 +26,10 @@ import { useTokens } from '@/lib/tokens';
 import { fmtDate, fmtPct, fmtSeconds } from '@/lib/format';
 import { gridDefaults, gridLocale, gridSx } from '@/lib/grid';
 import { runTitle } from '@/lib/run';
+import { arr, obj } from '@/lib/safe';
 
-type ModelDiff = CompareDoc['models'][number];
-type FamilyDiff = CompareDoc['families'][number];
+type ModelDiff = NonNullable<CompareDoc['models']>[number];
+type FamilyDiff = NonNullable<CompareDoc['families']>[number];
 
 export default function Compare() {
   const { t, i18n } = useTranslation();
@@ -243,7 +244,7 @@ export default function Compare() {
         <Stack spacing={2}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(5, 1fr)' }, gap: 2 }}>
             {(['improved', 'regressed', 'new', 'gone', 'same'] as const).map((k) => (
-              <KpiCard key={k} label={t(`compare.${k}`)} value={d.counts[k] ?? 0} color={changeColor[k]} />
+              <KpiCard key={k} label={t(`compare.${k}`)} value={obj(d.counts)[k] ?? 0} color={changeColor[k]} />
             ))}
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
@@ -280,7 +281,7 @@ export default function Compare() {
           <Section title={t('compare.models')} noPad>
             <DataGrid
               {...gridDefaults}
-              rows={d.models}
+              rows={arr(d.models)}
               columns={modelCols}
               localeText={gridLocale(i18n.language)}
               autoHeight
@@ -290,7 +291,7 @@ export default function Compare() {
           <Section title={t('compare.familyDiff')} noPad>
             <DataGrid
               {...gridDefaults}
-              rows={d.families}
+              rows={arr(d.families)}
               getRowId={(r) => r.key}
               columns={familyCols}
               localeText={gridLocale(i18n.language)}

@@ -32,6 +32,7 @@ import { FamilyBars } from '@/charts/FamilyBars';
 import { fmtPct, fmtRelative, fmtSeconds } from '@/lib/format';
 import { useReasonLookup } from '@/lib/reasons';
 import { runTitle, scanCounts } from '@/lib/run';
+import { arr } from '@/lib/safe';
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -180,7 +181,7 @@ export default function Dashboard() {
           </Section>
         </Box>
       )}
-      {doc && doc.top_families && (
+      {doc && !doc.partial && arr(doc.top_families).length > 0 && (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: 2, mb: 2 }}>
           <Section
             title={t('run.overview.topFamilies')}
@@ -191,7 +192,7 @@ export default function Dashboard() {
             }
           >
             <FamilyBars
-              families={doc.top_families.slice(0, 10)}
+              families={arr(doc.top_families).slice(0, 10)}
               onPick={(k) => void navigate(`/runs/${latest?.id}?tab=ranking&family=${encodeURIComponent(k)}`)}
             />
           </Section>
@@ -216,32 +217,36 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {doc.top_models.slice(0, 10).map((m, i) => (
-                    <TableRow
-                      key={m.id}
-                      hover
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => void navigate(`/runs/${latest?.id}?tab=models&model=${encodeURIComponent(m.id)}`)}
-                    >
-                      <TableCell className="mono">{i + 1}</TableCell>
-                      <TableCell
-                        className="mono"
-                        sx={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                        title={m.id}
+                  {arr(doc.top_models)
+                    .slice(0, 10)
+                    .map((m, i) => (
+                      <TableRow
+                        key={m.id}
+                        hover
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          void navigate(`/runs/${latest?.id}?tab=models&model=${encodeURIComponent(m.id)}`)
+                        }
                       >
-                        {m.id}
-                      </TableCell>
-                      <TableCell>
-                        <ProviderChip name={m.provider_name} />
-                      </TableCell>
-                      <TableCell>
-                        <TierBadge tier={m.tier} />
-                      </TableCell>
-                      <TableCell>
-                        <LatencyChip seconds={m.median_s} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell className="mono">{i + 1}</TableCell>
+                        <TableCell
+                          className="mono"
+                          sx={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          title={m.id}
+                        >
+                          {m.id}
+                        </TableCell>
+                        <TableCell>
+                          <ProviderChip name={m.provider_name} />
+                        </TableCell>
+                        <TableCell>
+                          <TierBadge tier={m.tier} />
+                        </TableCell>
+                        <TableCell>
+                          <LatencyChip seconds={m.median_s} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </Box>

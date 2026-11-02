@@ -1,0 +1,39 @@
+{
+  "history": [
+    {
+      "model_id": "b/missing",
+      "round": 1,
+      "at": "2026-11-02T21:32:27.036+08:00",
+      "http": 404,
+      "inner": 0,
+      "latency": 30000000,
+      "ok": false,
+      "class": "model_unavailable",
+      "reason": "model_unavailable",
+      "message": "The model 'missing' does not exist"
+    }
+  ],
+  "model": {
+    "id": "b/missing",
+    "owned_by": "b",
+    "upstream": "missing",
+    "provider_key": "b",
+    "provider_name": "b",
+    "family_key": "missing||",
+    "family_canon": "missing",
+    "family_source": "rule",
+    "status": "fail",
+    "attempts": 1,
+    "ok": 0,
+    "rate": 0,
+    "min_s": 0,
+    "median_s": 0,
+    "max_s": 0,
+    "jitter": 0,
+    "reason": "model_unavailable",
+    "first_reason": "model_unavailable",
+    "http": 404,
+    "message": "The model 'missing' does not exist",
+    "fail_latency_s": 0.03
+  }
+}

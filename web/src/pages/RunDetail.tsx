@@ -1,35 +1,25 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  LinearProgress,
-  Skeleton,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Chip, LinearProgress, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/material';
 import StopCircleOutlined from '@mui/icons-material/StopCircleOutlined';
 import DownloadRounded from '@mui/icons-material/DownloadRounded';
 import CompareArrowsRounded from '@mui/icons-material/CompareArrowsRounded';
-import { useCancelRun, useRun } from '@/api/hooks';
+import { useCancelRun, useRun, useSkipModel } from '@/api/hooks';
 import { useRunEvents } from '@/api/sse';
-import type { Progress, Run } from '@/api/types';
+import type { Progress } from '@/api/types';
 import { PageHeader } from '@/components/PageHeader';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ProgressCard } from '@/components/ProgressCard';
 import { KindChip, StatusChip } from '@/components/badges';
-import { LiveFeed } from '@/components/LiveFeed';
 import { ModelDrawer } from '@/components/ModelDrawer';
 import { FamilyDrawer } from '@/components/FamilyDrawer';
 import { Section } from '@/components/Section';
-import { durationBetween, fmtDate, fmtDurationS } from '@/lib/format';
+import { useNotify } from '@/components/notifyContext';
+import { durationBetween, fmtDate } from '@/lib/format';
 import { isLive, runTitle } from '@/lib/run';
+import { arr } from '@/lib/safe';
 import { OverviewTab } from './run/OverviewTab';
 import { RankingTab } from './run/RankingTab';
 import { ModelsTab } from './run/ModelsTab';
@@ -46,100 +36,23 @@ const ExportTab = lazy(() => import('./run/ExportTab'));
 
 const SCAN_TABS = ['overview', 'ranking', 'stability', 'models', 'providers', 'failures', 'families'] as const;
 
-function ProgressCard({
-  run,
-  progress,
-  children,
-  feed,
-}: {
-  run: Run;
-  progress: Progress | undefined;
-  children: Run[];
-  feed: Parameters<typeof LiveFeed>[0]['events'];
-}) {
-  const { t } = useTranslation();
-  const total = progress?.total ?? 0;
-  const done = progress?.done ?? 0;
-  const pct = total > 0 ? Math.min(100, (100 * done) / total) : 0;
-  const stage = progress?.stage || run.status;
-  return (
-    <Card sx={{ mb: 2 }}>
-      <CardContent>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
-              <Chip
-                size="small"
-                color="primary"
-                label={`${t('run.stage')}: ${t(`kinds.${stage}`, { defaultValue: stage })}`}
-              />
-              {progress?.rounds ? (
-                <Chip
-                  size="small"
-                  variant="outlined"
-                  label={t('run.round', { r: progress.round, n: progress.rounds })}
-                />
-              ) : null}
-              <Typography variant="body2" className="mono">
-                {done}/{total}
-              </Typography>
-              <Typography variant="body2" color="success.main" className="mono">
-                ✓ {progress?.ok ?? 0}
-              </Typography>
-              <Typography variant="body2" color="error.main" className="mono">
-                ✗ {progress?.fail ?? 0}
-              </Typography>
-              {progress?.eta_s ? (
-                <Typography variant="body2" color="text.secondary">
-                  {t('run.eta')} {fmtDurationS(progress.eta_s)}
-                </Typography>
-              ) : null}
-            </Stack>
-            <LinearProgress
-              variant={total > 0 ? 'determinate' : 'indeterminate'}
-              value={pct}
-              sx={{ height: 8, borderRadius: 4 }}
-            />
-            {children.length > 0 && (
-              <Stack direction="row" spacing={0.75} sx={{ mt: 1.5 }} flexWrap="wrap" useFlexGap>
-                {children.map((c) => (
-                  <Chip
-                    key={c.id}
-                    size="small"
-                    variant="outlined"
-                    label={`${t(`kinds.${c.kind}`)} · ${t(`common.${c.status}`, { defaultValue: c.status })}`}
-                  />
-                ))}
-              </Stack>
-            )}
-          </Box>
-          <Box sx={{ width: { xs: '100%', md: 460 }, flexShrink: 0 }}>
-            <Typography variant="overline" color="text.secondary">
-              {t('run.liveFeed')}
-            </Typography>
-            <LiveFeed events={feed} height={220} />
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function RunDetail() {
   const { id = '' } = useParams();
   const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const runQ = useRun(id);
   const run = runQ.data?.run;
-  const children = useMemo(() => runQ.data?.children ?? [], [runQ.data]);
+  const childRuns = useMemo(() => arr(runQ.data?.children), [runQ.data]);
   const running = runQ.data?.running ?? false;
-  const live = useRunEvents(id, running);
+  const live = useRunEvents(id, running, run?.kind);
   const cancel = useCancelRun();
+  const skip = useSkipModel();
+  const { notify } = useNotify();
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [modelId, setModelId] = useState<string | undefined>(params.get('model') ?? undefined);
   const [familyKey, setFamilyKey] = useState<string | undefined>(params.get('family') ?? undefined);
 
-  const kinds = useMemo(() => new Set([run?.kind, ...children.map((c) => c.kind)]), [run, children]);
+  const kinds = useMemo(() => new Set([run?.kind, ...childRuns.map((c) => c.kind)]), [run, childRuns]);
   const tabs = useMemo(() => {
     if (!run) return [];
     const list: string[] = [];
@@ -156,22 +69,36 @@ export default function RunDetail() {
   const goTab = (next: string, extra?: Record<string, string>) =>
     setParams(
       (prev) => {
-        const keep = prev.get('tab');
         for (const k of [...prev.keys()]) if (k !== 'tab') prev.delete(k);
         prev.set('tab', next);
         if (extra) for (const [k, v] of Object.entries(extra)) prev.set(k, v);
-        if (keep === next && !extra) prev.set('tab', next);
         return prev;
       },
       { replace: true },
     );
 
   if (runQ.error) return <Alert severity="error">{String(runQ.error)}</Alert>;
-  if (!run) return <Skeleton variant="rounded" height={240} sx={{ borderRadius: 5 }} />;
-  const progress: Progress | undefined =
-    (live.latest && live.latest.kind !== 'done' ? live.latest : undefined) ?? run.progress ?? undefined;
-  const tabProps: TabProps = { runId: id, run, onModel: setModelId, onFamily: setFamilyKey, goTab };
+  if (!run) return <Skeleton variant="rounded" height={240} />;
+
   const showProgress = running || isLive(run.status);
+  const progress: Progress | undefined =
+    (live.latest && live.latest.kind !== 'done' ? live.latest : undefined) ??
+    (showProgress ? (run.progress ?? undefined) : undefined);
+  const inflight = live.connected || live.inflight.length > 0 ? live.inflight : arr(runQ.data?.inflight);
+  const tabProps: TabProps = { runId: id, run, onModel: setModelId, onFamily: setFamilyKey, goTab };
+  const onSkip = (model: string | undefined, all: boolean) =>
+    skip.mutate(
+      { runId: id, model, all },
+      {
+        onSuccess: (r) =>
+          notify(
+            all ? t('run.live.skippedAll', { n: arr(r?.skipped).length }) : t('run.live.skipped', { model }),
+            'warning',
+          ),
+        onError: (e) =>
+          notify(t('run.live.skipFailed', { error: e instanceof Error ? e.message : String(e) }), 'error'),
+      },
+    );
 
   return (
     <>
@@ -241,7 +168,20 @@ export default function RunDetail() {
           {live.error}
         </Alert>
       )}
-      {showProgress && <ProgressCard run={run} progress={progress} children={children} feed={live.feed} />}
+      {showProgress && (
+        <ErrorBoundary label={t('run.progress')} resetKeys={[id]}>
+          <ProgressCard
+            run={run}
+            childRuns={childRuns}
+            progress={progress}
+            inflight={inflight}
+            feed={live.feed}
+            logs={live.rounds}
+            onSkip={onSkip}
+            skipping={skip.isPending}
+          />
+        </ErrorBoundary>
+      )}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs
           value={tab}
@@ -255,20 +195,22 @@ export default function RunDetail() {
           ))}
         </Tabs>
       </Box>
-      <Suspense fallback={<LinearProgress />}>
-        {tab === 'overview' && <OverviewTab {...tabProps} />}
-        {tab === 'ranking' && <RankingTab {...tabProps} order="composite" />}
-        {tab === 'stability' && <RankingTab {...tabProps} order="stability" />}
-        {tab === 'models' && <ModelsTab {...tabProps} />}
-        {tab === 'providers' && <ProvidersTab {...tabProps} />}
-        {tab === 'failures' && <FailuresTab {...tabProps} />}
-        {tab === 'families' && <FamiliesTab {...tabProps} />}
-        {tab === 'latency' && <LatencyTab {...tabProps} />}
-        {tab === 'load' && <LoadTab {...tabProps} />}
-        {tab === 'capabilities' && <CapabilitiesTab {...tabProps} />}
-        {tab === 'quality' && <QualityTab {...tabProps} />}
-        {tab === 'export' && <ExportTab {...tabProps} />}
-      </Suspense>
+      <ErrorBoundary label={t(`run.tabs.${tab}`)} resetKeys={[tab, id]}>
+        <Suspense fallback={<LinearProgress />}>
+          {tab === 'overview' && <OverviewTab {...tabProps} />}
+          {tab === 'ranking' && <RankingTab {...tabProps} order="composite" />}
+          {tab === 'stability' && <RankingTab {...tabProps} order="stability" />}
+          {tab === 'models' && <ModelsTab {...tabProps} />}
+          {tab === 'providers' && <ProvidersTab {...tabProps} />}
+          {tab === 'failures' && <FailuresTab {...tabProps} />}
+          {tab === 'families' && <FamiliesTab {...tabProps} />}
+          {tab === 'latency' && <LatencyTab {...tabProps} />}
+          {tab === 'load' && <LoadTab {...tabProps} />}
+          {tab === 'capabilities' && <CapabilitiesTab {...tabProps} />}
+          {tab === 'quality' && <QualityTab {...tabProps} />}
+          {tab === 'export' && <ExportTab {...tabProps} />}
+        </Suspense>
+      </ErrorBoundary>
       {!showProgress && live.rounds.length > 0 && (
         <Section title={t('run.progress')} sx={{ mt: 2 }}>
           <Stack spacing={0.5}>
@@ -280,24 +222,28 @@ export default function RunDetail() {
           </Stack>
         </Section>
       )}
-      <ModelDrawer
-        runId={id}
-        modelId={modelId}
-        onClose={() => setModelId(undefined)}
-        onFamily={(k) => {
-          setModelId(undefined);
-          setFamilyKey(k);
-        }}
-      />
-      <FamilyDrawer
-        runId={id}
-        familyKey={familyKey}
-        onClose={() => setFamilyKey(undefined)}
-        onModel={(m) => {
-          setFamilyKey(undefined);
-          setModelId(m);
-        }}
-      />
+      <ErrorBoundary label={t('common.model')} resetKeys={[modelId]}>
+        <ModelDrawer
+          runId={id}
+          modelId={modelId}
+          onClose={() => setModelId(undefined)}
+          onFamily={(k) => {
+            setModelId(undefined);
+            setFamilyKey(k);
+          }}
+        />
+      </ErrorBoundary>
+      <ErrorBoundary label={t('common.family')} resetKeys={[familyKey]}>
+        <FamilyDrawer
+          runId={id}
+          familyKey={familyKey}
+          onClose={() => setFamilyKey(undefined)}
+          onModel={(m) => {
+            setFamilyKey(undefined);
+            setModelId(m);
+          }}
+        />
+      </ErrorBoundary>
       <ConfirmDialog
         open={confirmCancel}
         title={t('runs.cancel')}
@@ -306,7 +252,14 @@ export default function RunDetail() {
         confirmLabel={t('runs.cancel')}
         busy={cancel.isPending}
         onClose={() => setConfirmCancel(false)}
-        onConfirm={() => cancel.mutate(id, { onSuccess: () => setConfirmCancel(false) })}
+        onConfirm={() =>
+          cancel.mutate(id, {
+            onSuccess: () => {
+              setConfirmCancel(false);
+              notify(t('common.cancelled'), 'info');
+            },
+          })
+        }
       />
     </>
   );

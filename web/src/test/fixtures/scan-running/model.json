@@ -1,0 +1,37 @@
+{
+  "history": [
+    {
+      "model_id": "a/fast",
+      "round": 1,
+      "at": "2026-11-02T21:32:27.036+08:00",
+      "http": 200,
+      "inner": 0,
+      "latency": 120000000,
+      "ok": true,
+      "class": "ok",
+      "reason": "ok",
+      "served_model": "fast"
+    }
+  ],
+  "model": {
+    "id": "a/fast",
+    "owned_by": "a",
+    "upstream": "fast",
+    "provider_key": "a",
+    "provider_name": "a",
+    "family_key": "fast||",
+    "family_canon": "fast",
+    "family_source": "rule",
+    "status": "ok",
+    "attempts": 1,
+    "ok": 1,
+    "rate": 1,
+    "tier": "A",
+    "min_s": 0.12,
+    "median_s": 0.12,
+    "max_s": 0.12,
+    "jitter": 1,
+    "served_model": "fast",
+    "reason": "ok"
+  }
+}
