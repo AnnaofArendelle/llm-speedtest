@@ -599,15 +599,23 @@ func (s *Server) runSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	top := res.Families
-	if len(top) > 15 {
+	if top == nil {
+		top = []*analyze.FamilyStat{}
+	} else if len(top) > 15 {
 		top = top[:15]
 	}
 	topModels := res.Available
-	if len(topModels) > 20 {
+	if topModels == nil {
+		topModels = []*analyze.ModelStat{}
+	} else if len(topModels) > 20 {
 		topModels = topModels[:20]
 	}
+	providers := res.Providers
+	if providers == nil {
+		providers = []*analyze.ProviderStat{}
+	}
 	writeJSON(w, 200, map[string]any{"run": run, "summary": res.Summary, "scoring": res.Scoring, "provider_field": res.ProviderField, "provider_rationale": res.ProviderRationale,
-		"provider_suggestions": res.Suggestions, "top_families": top, "top_models": topModels, "providers": res.Providers})
+		"provider_suggestions": res.Suggestions, "top_families": top, "top_models": topModels, "providers": providers})
 }
 
 func (s *Server) runFamilies(w http.ResponseWriter, r *http.Request) {

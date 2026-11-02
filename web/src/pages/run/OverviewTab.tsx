@@ -107,7 +107,7 @@ export function OverviewTab({ runId, onModel, onFamily, goTab }: TabProps) {
             wsp: doc.scoring.w_speed,
           })}
         >
-          <FamilyBars families={doc.top_families} onPick={onFamily} />
+          <FamilyBars families={doc.top_families ?? []} onPick={onFamily} />
         </Section>
         <Section title={t('run.overview.topModels')} noPad>
           <Box sx={{ overflowX: 'auto' }}>
@@ -125,35 +125,45 @@ export function OverviewTab({ runId, onModel, onFamily, goTab }: TabProps) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {doc.top_models.map((m, i) => (
-                  <TableRow key={m.id} hover sx={{ cursor: 'pointer' }} onClick={() => onModel(m.id)}>
-                    <TableCell className="mono">{i + 1}</TableCell>
-                    <TableCell
-                      className="mono"
-                      sx={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                      title={m.id}
-                    >
-                      {m.id}
-                    </TableCell>
-                    <TableCell>
-                      <ProviderChip name={m.provider_name} />
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={0.5} alignItems="center">
-                        <TierBadge tier={m.tier} />
-                        <Typography variant="caption" className="mono" color="text.secondary">
-                          {m.ok}/{m.attempts}
-                        </Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <LatencyChip seconds={m.median_s} />
-                    </TableCell>
-                    <TableCell className="mono" sx={{ whiteSpace: 'nowrap' }}>
-                      {fmtSeconds(m.min_s)} – {fmtSeconds(m.max_s)}
+                {(doc.top_models ?? []).length > 0 ? (
+                  (doc.top_models ?? []).map((m, i) => (
+                    <TableRow key={m.id} hover sx={{ cursor: 'pointer' }} onClick={() => onModel(m.id)}>
+                      <TableCell className="mono">{i + 1}</TableCell>
+                      <TableCell
+                        className="mono"
+                        sx={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        title={m.id}
+                      >
+                        {m.id}
+                      </TableCell>
+                      <TableCell>
+                        <ProviderChip name={m.provider_name} />
+                      </TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={0.5} alignItems="center">
+                          <TierBadge tier={m.tier} />
+                          <Typography variant="caption" className="mono" color="text.secondary">
+                            {m.ok}/{m.attempts}
+                          </Typography>
+                        </Stack>
+                      </TableCell>
+                      <TableCell>
+                        <LatencyChip seconds={m.median_s} />
+                      </TableCell>
+                      <TableCell className="mono" sx={{ whiteSpace: 'nowrap' }}>
+                        {fmtSeconds(m.min_s)} – {fmtSeconds(m.max_s)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                        {t('common.none')}
+                      </Typography>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </Box>

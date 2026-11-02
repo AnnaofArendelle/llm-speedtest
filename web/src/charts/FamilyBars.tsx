@@ -8,12 +8,12 @@ import { tierColor, tokens } from '@/app/theme';
 import { fmtSeconds } from '@/lib/format';
 import type { FamilyStat } from '@/api/types';
 
-export function FamilyBars({ families, onPick }: { families: FamilyStat[]; onPick?: (key: string) => void }) {
+export function FamilyBars({ families = [], onPick }: { families?: FamilyStat[]; onPick?: (key: string) => void }) {
   const theme = useTheme();
   const axis = useAxisStyle();
   const { t } = useTranslation();
   const tk = tokens[theme.palette.mode];
-  const rows = useMemo(() => [...families].reverse(), [families]);
+  const rows = useMemo(() => [...(families ?? [])].reverse(), [families]);
   const option = useMemo<EChartsOption>(
     () => ({
       grid: { left: 8, right: 44, top: 4, bottom: 4, containLabel: true },

@@ -256,7 +256,17 @@ func Enrich(models []core.RunModel, attempts []core.Attempt, opt Options) provid
 // Build aggregates attempts for the (enriched) models.
 func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *provider.Result) *Result {
 	sc.Normalize()
-	res := &Result{Scoring: sc, familyByKey: map[string]*FamilyStat{}, modelByID: map[string]*ModelStat{}}
+	res := &Result{
+		Scoring:             sc,
+		familyByKey:         map[string]*FamilyStat{},
+		modelByID:           map[string]*ModelStat{},
+		Families:            []*FamilyStat{},
+		FamiliesByStability: []*FamilyStat{},
+		UnavailableFamilies: []*FamilyStat{},
+		Available:           []*ModelStat{},
+		Models:              []*ModelStat{},
+		Providers:           []*ProviderStat{},
+	}
 	if pres != nil {
 		res.ProviderField, res.ProviderRationale, res.Suggestions = pres.Field, pres.Rationale, pres.Suggestions
 	}
@@ -414,7 +424,7 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 		}
 		f.BestID = f.Best.ID
 	}
-	var avail, unavail []*FamilyStat
+	avail, unavail := []*FamilyStat{}, []*FamilyStat{}
 	maxProv := 1
 	for _, f := range res.familyByKey {
 		if f.OK > 0 {
@@ -477,7 +487,7 @@ func Build(models []core.RunModel, attempts []core.Attempt, sc Scoring, pres *pr
 	res.UnavailableFamilies = unavail
 
 	// Model rankings
-	var oks, fails []*ModelStat
+	oks, fails := []*ModelStat{}, []*ModelStat{}
 	for _, m := range res.Models {
 		if m.Status == "ok" {
 			oks = append(oks, m)

@@ -124,3 +124,23 @@ func TestBuildEdgeCases(t *testing.T) {
 		t.Fatalf("summary = %+v", res.Summary)
 	}
 }
+
+func TestBuildAllFailuresNoNilSlices(t *testing.T) {
+	models := []core.RunModel{{ID: "a/x", OwnedBy: "a"}}
+	attempts := []core.Attempt{
+		{ModelID: "a/x", Round: 1, OK: false, Reason: "auth", Class: "auth"},
+	}
+	res := Build(models, attempts, Scoring{}, nil)
+	if res.Available == nil {
+		t.Error("res.Available should be empty slice, got nil")
+	}
+	if res.Families == nil {
+		t.Error("res.Families should be empty slice, got nil")
+	}
+	if res.FamiliesByStability == nil {
+		t.Error("res.FamiliesByStability should be empty slice, got nil")
+	}
+	if res.Providers == nil {
+		t.Error("res.Providers should be empty slice, got nil")
+	}
+}

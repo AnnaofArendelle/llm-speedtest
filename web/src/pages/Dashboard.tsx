@@ -180,7 +180,7 @@ export default function Dashboard() {
           </Section>
         </Box>
       )}
-      {doc && doc.top_families && (
+      {doc && ((doc.top_families ?? []).length > 0 || (doc.top_models ?? []).length > 0) && (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: 2, mb: 2 }}>
           <Section
             title={t('run.overview.topFamilies')}
@@ -191,7 +191,7 @@ export default function Dashboard() {
             }
           >
             <FamilyBars
-              families={doc.top_families.slice(0, 10)}
+              families={(doc.top_families ?? []).slice(0, 10)}
               onPick={(k) => void navigate(`/runs/${latest?.id}?tab=ranking&family=${encodeURIComponent(k)}`)}
             />
           </Section>
@@ -216,32 +216,44 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {doc.top_models.slice(0, 10).map((m, i) => (
-                    <TableRow
-                      key={m.id}
-                      hover
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => void navigate(`/runs/${latest?.id}?tab=models&model=${encodeURIComponent(m.id)}`)}
-                    >
-                      <TableCell className="mono">{i + 1}</TableCell>
-                      <TableCell
-                        className="mono"
-                        sx={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                        title={m.id}
+                  {(doc.top_models ?? []).slice(0, 10).length > 0 ? (
+                    (doc.top_models ?? []).slice(0, 10).map((m, i) => (
+                      <TableRow
+                        key={m.id}
+                        hover
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          void navigate(`/runs/${latest?.id}?tab=models&model=${encodeURIComponent(m.id)}`)
+                        }
                       >
-                        {m.id}
-                      </TableCell>
-                      <TableCell>
-                        <ProviderChip name={m.provider_name} />
-                      </TableCell>
-                      <TableCell>
-                        <TierBadge tier={m.tier} />
-                      </TableCell>
-                      <TableCell>
-                        <LatencyChip seconds={m.median_s} />
+                        <TableCell className="mono">{i + 1}</TableCell>
+                        <TableCell
+                          className="mono"
+                          sx={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          title={m.id}
+                        >
+                          {m.id}
+                        </TableCell>
+                        <TableCell>
+                          <ProviderChip name={m.provider_name} />
+                        </TableCell>
+                        <TableCell>
+                          <TierBadge tier={m.tier} />
+                        </TableCell>
+                        <TableCell>
+                          <LatencyChip seconds={m.median_s} />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                          {t('common.none')}
+                        </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </Box>

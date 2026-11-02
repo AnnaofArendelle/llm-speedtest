@@ -243,9 +243,9 @@ export interface RunSummaryDoc {
   provider_field: string;
   provider_rationale: string;
   provider_suggestions?: { keys: string[]; evidence: string }[];
-  top_families: FamilyStat[];
-  top_models: ModelStat[];
-  providers: ProviderStat[];
+  top_families?: FamilyStat[];
+  top_models?: ModelStat[];
+  providers?: ProviderStat[];
 }
 
 export interface Stats {
